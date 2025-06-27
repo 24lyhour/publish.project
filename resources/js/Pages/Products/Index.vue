@@ -1,7 +1,6 @@
 <template>
 
     <Head title="Products" />
-
     <AuthenticatedLayout>
         <v-container class="container pa-2" fluid>
             <v-card class="card rounded-xl">
@@ -48,6 +47,9 @@ const headers = [
 </script>
 
 <style scoped>
+/**
+* Modify styles
+*/
 .container {
     border-radius: 20px;
 }

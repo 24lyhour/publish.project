@@ -1,18 +1,3 @@
-<script setup>
-import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
-import { Head, useForm } from '@inertiajs/vue3';
-
-const form = useForm({
-    name: '',
-    description: '',
-    price: '',
-});
-
-const submit = () => {
-    form.post(route('products.store'));
-};
-</script>
-
 <template>
 
     <Head title="Create Product" />
@@ -39,3 +24,26 @@ const submit = () => {
         </v-container>
     </AuthenticatedLayout>
 </template>
+
+<script setup>
+import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
+import { Head, useForm } from '@inertiajs/vue3';
+
+/**
+ * Use Form
+ * 
+ */
+const form = useForm({
+    name: '',
+    description: '',
+    price: '',
+});
+
+/**
+ * Submit Form
+ * 
+ */
+const submit = () => {
+    form.post(route('products.store'));
+};
+</script>
