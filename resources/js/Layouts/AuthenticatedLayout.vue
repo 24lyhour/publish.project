@@ -1,24 +1,5 @@
 1
-<script setup>
-import { ref, watch } from 'vue';
-import { usePage, Link } from '@inertiajs/vue3';
 
-const page = usePage();
-const menu = page.props.menu;
-
-const drawer = ref(true);
-const snackbar = ref(false);
-const flashMessage = ref('');
-const flashColor = ref('success');
-
-watch(() => page.props.flash, (flash) => {
-    if (flash.success) {
-        flashMessage.value = flash.success;
-        flashColor.value = 'success';
-        snackbar.value = true;
-    }
-}, { deep: true });
-</script>
 
 <template>
     <v-app>
@@ -44,3 +25,24 @@ watch(() => page.props.flash, (flash) => {
         </v-main>
     </v-app>
 </template>
+
+<script setup>
+import { ref, watch } from 'vue';
+import { usePage, Link } from '@inertiajs/vue3';
+
+const page = usePage();
+const menu = page.props.menu;
+
+const drawer = ref(true);
+const snackbar = ref(false);
+const flashMessage = ref('');
+const flashColor = ref('success');
+
+watch(() => page.props.flash, (flash) => {
+    if (flash.success) {
+        flashMessage.value = flash.success;
+        flashColor.value = 'success';
+        snackbar.value = true;
+    }
+}, { deep: true });
+</script>
