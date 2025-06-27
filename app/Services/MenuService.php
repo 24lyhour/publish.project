@@ -13,15 +13,24 @@ class MenuService
     {
         return [
             [
-            'label' => 'Dashboard',
-            'icon' => 'mdi-view-dashboard',
-            'route' => 'dashboard',
+                'label' => 'User Profile',
+                'image' => 'path/to/image.jpg',
+                'route' => 'dashboard'
             ],
             [
-            'label' => 'Products',
-            'icon' => 'mdi-package-variant-closed',
-            'route' => 'products.index',
+                'label' => 'Products',
+                'icon' => 'mdi-package-variant-closed',
+                'route' => 'products.index',
+                'style'=>[
+                    'color' => 'red',
+                    'marginTop' => '10px'
+                ]
             ],
+            [
+                'label' => 'Dashboard',
+                'icon' => 'mdi-view-dashboard',
+                'route' => 'dashboard',
+            ]
         ];
     }
 }
