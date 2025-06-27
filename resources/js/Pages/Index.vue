@@ -41,10 +41,12 @@
 
 <script setup>
 import { ref } from 'vue';
-import FlexibleModal from '@/Components/FlexibleModal.vue'; // Assumes an alias for `FrontEnd/src/`
+import FlexibleModal from '@/Components/FlexibleModal.vue';
 
-// In a real Inertia app, this data would come from your controller as a prop.
-// e.g., defineProps({ products: Array })
+/**
+ * Product Data
+ * 
+ */
 const products = ref([
     { id: 1, name: 'Awesome Gadget', price: '$49.99', description: 'This is the best gadget you will ever own. It does amazing things and will change your life.', imageUrl: 'https://via.placeholder.com/400x300' },
     { id: 2, name: 'Super Widget', price: '$29.99', description: 'A must-have widget for every household. Incredibly useful and easy to use.', imageUrl: 'https://via.placeholder.com/400x300' },
@@ -54,6 +56,12 @@ const products = ref([
 const isModalOpen = ref(false);
 const selectedProduct = ref(null);
 
+/**
+ * 
+ * @param product 
+ * 
+ * Open Product Modal
+ */
 const openProductModal = (product) => {
     selectedProduct.value = product;
     isModalOpen.value = true;

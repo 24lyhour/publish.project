@@ -26,11 +26,6 @@
 </template>
 
 <script setup>
-
-/**
- * DefineProps for this component
- * 
- */
 defineProps({
     modelValue: {
         type: Boolean,
@@ -42,9 +37,5 @@ defineProps({
     },
 });
 
-/**
- * DefineEmits for this component
- * 
- */
 defineEmits(['update:modelValue']);
 </script>
