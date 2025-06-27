@@ -13,10 +13,15 @@ class MenuService
     {
         return [
             [
-                'label' => 'User Profile',
+                'label' => 'LyHour Kouch',
                 'image' => 'path/to/image.jpg',
                 'route' => 'dashboard'
             ],
+             [
+                'label' => 'Dashboard',
+                'icon' => 'mdi-view-dashboard',
+                'route' => 'dashboard',
+             ],
             [
                 'label' => 'Products',
                 'icon' => 'mdi-package-variant-closed',
@@ -26,11 +31,7 @@ class MenuService
                     'marginTop' => '10px'
                 ]
             ],
-            [
-                'label' => 'Dashboard',
-                'icon' => 'mdi-view-dashboard',
-                'route' => 'dashboard',
-            ]
+           
         ];
     }
 }

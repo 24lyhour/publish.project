@@ -14,7 +14,7 @@ class ProductController extends Controller
      */
     public function index()
     {
-        return Inertia::render('Products/Index', [
+        return Inertia::render('Dashboard/Inertia/V3/Products/Index', [
             'products' => Product::latest()->paginate(10),
         ]);
     }
@@ -24,7 +24,7 @@ class ProductController extends Controller
      */
     public function create()
     {
-        return Inertia::render('Products/Create');
+        return Inertia::render('Dashboard/Inertia/V3/Products/Create');
     }
 
     /**
@@ -36,7 +36,7 @@ class ProductController extends Controller
 
         return redirect()->route('products.index')
             ->with('success', 'Product created successfully.');
-    }
+        }
 
     /**
      * Display the specified resource.
