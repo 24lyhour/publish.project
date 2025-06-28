@@ -47,10 +47,20 @@ class ProductController extends Controller
 
     /**
      * Display the specified resource.
+     * 
+     * @param Product $product
+     * @return Response
+     * 
+     * @throws Exception
+     * @throws ResponseException
+     * 
+     * 
      */
     public function show(Product $product)
     {
-        //
+       return Inertia::render('Products/Show', [
+            'product' => $product,
+        ]);
     }
 
     /**
