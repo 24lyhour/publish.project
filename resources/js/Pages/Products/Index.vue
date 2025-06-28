@@ -21,14 +21,35 @@
                     </Link>
                 </div>
 
-                <!-- Success Message with Animation -->
+                <!-- Success Message with Enhanced Styling -->
                 <v-expand-transition>
-                    <v-alert v-if="$page.props.flash.success" color="black" variant="tonal" prominent closable
-                        class="mb-6 text-white" border="start">
+                    <v-alert v-if="$page.props.flash.success" color="success" variant="elevated" prominent closable
+                        class="mb-6 success-alert" border="start" border-color="success">
                         <template #prepend>
-                            <v-icon icon="mdi-check-circle" color="white"></v-icon>
+                            <v-icon icon="mdi-check-circle-outline" size="24"></v-icon>
                         </template>
-                        {{ $page.props.flash.success }}
+                        <div class="d-flex align-center">
+                            <div>
+                                <div class="text-h6 font-weight-bold mb-1">Success!</div>
+                                <div class="text-body-1">{{ $page.props.flash.success }}</div>
+                            </div>
+                        </div>
+                    </v-alert>
+                </v-expand-transition>
+
+                <!-- Error Message -->
+                <v-expand-transition>
+                    <v-alert v-if="$page.props.flash.error" color="error" variant="elevated" prominent closable
+                        class="mb-6" border="start" border-color="error">
+                        <template #prepend>
+                            <v-icon icon="mdi-alert-circle-outline" size="24"></v-icon>
+                        </template>
+                        <div class="d-flex align-center">
+                            <div>
+                                <div class="text-h6 font-weight-bold mb-1">Error!</div>
+                                <div class="text-body-1">{{ $page.props.flash.error }}</div>
+                            </div>
+                        </div>
                     </v-alert>
                 </v-expand-transition>
             </div>
@@ -39,15 +60,16 @@
                     <v-icon icon="mdi-filter-variant" class="me-2" color="white"></v-icon>
                     Advanced Filters
                     <v-spacer></v-spacer>
-                    <v-btn icon="mdi-refresh" variant="text" size="small" @click="clearFilters"
-                        class="text-white"></v-btn>
+                    <v-btn icon="mdi-refresh" variant="text" size="small" @click="clearFilters" class="text-white">
+                        <v-tooltip activator="parent">Clear All Filters</v-tooltip>
+                    </v-btn>
                 </v-card-title>
                 <v-card-text class="pa-4">
                     <v-row>
                         <v-col cols="12" md="4">
                             <v-text-field v-model="searchQuery" label="Search products..."
                                 prepend-inner-icon="mdi-magnify" variant="outlined" density="comfortable" clearable
-                                hide-details></v-text-field>
+                                hide-details @keyup.enter="performSearch"></v-text-field>
                         </v-col>
                         <v-col cols="12" md="3">
                             <v-select v-model="priceFilter" :items="priceRanges" label="Price Range"
@@ -67,11 +89,52 @@
                 </v-card-text>
             </v-card>
 
+            <!-- Products Statistics Cards -->
+            <v-row class="mb-6">
+                <v-col cols="12" md="3">
+                    <v-card class="elevation-2" rounded="lg">
+                        <v-card-text class="text-center pa-4">
+                            <v-icon size="32" color="primary" class="mb-2">mdi-package-variant</v-icon>
+                            <div class="text-h4 font-weight-bold text-black">{{ totalProducts }}</div>
+                            <div class="text-caption text-grey-darken-1">Total Products</div>
+                        </v-card-text>
+                    </v-card>
+                </v-col>
+                <v-col cols="12" md="3">
+                    <v-card class="elevation-2" rounded="lg">
+                        <v-card-text class="text-center pa-4">
+                            <v-icon size="32" color="success" class="mb-2">mdi-currency-usd</v-icon>
+                            <div class="text-h4 font-weight-bold text-black">${{ averagePrice }}</div>
+                            <div class="text-caption text-grey-darken-1">Average Price</div>
+                        </v-card-text>
+                    </v-card>
+                </v-col>
+                <v-col cols="12" md="3">
+                    <v-card class="elevation-2" rounded="lg">
+                        <v-card-text class="text-center pa-4">
+                            <v-icon size="32" color="warning" class="mb-2">mdi-trending-up</v-icon>
+                            <div class="text-h4 font-weight-bold text-black">${{ highestPrice }}</div>
+                            <div class="text-caption text-grey-darken-1">Highest Price</div>
+                        </v-card-text>
+                    </v-card>
+                </v-col>
+                <v-col cols="12" md="3">
+                    <v-card class="elevation-2" rounded="lg">
+                        <v-card-text class="text-center pa-4">
+                            <v-icon size="32" color="info" class="mb-2">mdi-trending-down</v-icon>
+                            <div class="text-h4 font-weight-bold text-black">${{ lowestPrice }}</div>
+                            <div class="text-caption text-grey-darken-1">Lowest Price</div>
+                        </v-card-text>
+                    </v-card>
+                </v-col>
+            </v-row>
+
             <!-- Products Data Table -->
             <v-card class="elevation-4" rounded="lg">
                 <v-data-table v-model:search="searchQuery" v-model:sort-by="tableSortBy" :headers="headers"
                     :items="filteredProducts" :items-per-page="itemsPerPage" :loading="loading" class="elevation-0"
-                    hover>
+                    hover :items-per-page-options="itemsPerPageOptions">
+
                     <!-- Loading Slot -->
                     <template #loading>
                         <v-skeleton-loader type="table-row@6"></v-skeleton-loader>
@@ -87,6 +150,9 @@
                             <div>
                                 <div class="text-h6 font-weight-bold text-black">{{ item.name }}</div>
                                 <div class="text-caption text-grey-darken-1">ID: {{ item.id }}</div>
+                                <div class="text-caption text-grey-darken-1">
+                                    Created: {{ formatDate(item.created_at) }}
+                                </div>
                             </div>
                         </div>
                     </template>
@@ -125,7 +191,7 @@
                                 <v-icon color="white"></v-icon>
                                 <v-tooltip activator="parent">Edit Product</v-tooltip>
                             </v-btn>
-                            <v-btn color="grey-darken-1" variant="outlined" size="small" icon="mdi-delete"
+                            <v-btn color="error" variant="outlined" size="small" icon="mdi-delete"
                                 @click="openDeleteModal(item)" class="elevation-1">
                                 <v-icon></v-icon>
                                 <v-tooltip activator="parent">Delete Product</v-tooltip>
@@ -139,6 +205,9 @@
                             <v-icon size="64" color="grey-lighten-1" class="mb-4">mdi-package-variant</v-icon>
                             <h3 class="text-h6 text-black mb-2">No Products Found</h3>
                             <p class="text-body-2 text-grey-darken-1">Try adjusting your search criteria</p>
+                            <v-btn color="black" variant="elevated" @click="clearFilters" class="mt-4">
+                                Clear Filters
+                            </v-btn>
                         </div>
                     </template>
 
@@ -155,7 +224,7 @@
             </v-card>
 
             <!-- Custom Pagination -->
-            <div class="mt-6 d-flex justify-center">
+            <div v-if="products.links && products.links.length > 3" class="mt-6 d-flex justify-center">
                 <v-card class="elevation-2" rounded="pill">
                     <div class="d-flex">
                         <Link v-for="(link, index) in products.links" :key="link.label" :href="link.url"
@@ -179,32 +248,39 @@
                     <v-icon icon="mdi-pencil" class="me-2" color="white"></v-icon>
                     Edit Product
                     <v-spacer></v-spacer>
-                    <v-btn icon="mdi-close" variant="text" size="small" @click="isEditModalOpen = false"
+                    <v-btn icon="mdi-close" variant="text" size="small" @click="closeEditModal"
                         class="text-white"></v-btn>
                 </v-card-title>
 
                 <v-card-text class="pa-6">
                     <form @submit.prevent="submitEdit" class="space-y-4">
                         <v-text-field v-model="editForm.name" label="Product Name" prepend-inner-icon="mdi-package"
-                            variant="outlined" density="comfortable" :error-messages="editForm.errors.name"
-                            required></v-text-field>
+                            variant="outlined" density="comfortable" :error-messages="editForm.errors.name" required
+                            counter="255"></v-text-field>
 
-                        <v-text-field v-model="editForm.price" label="Price" type="number" step="0.01"
+                        <v-text-field v-model="editForm.price" label="Price" type="number" step="0.01" min="0"
                             prepend-inner-icon="mdi-currency-usd" variant="outlined" density="comfortable"
                             :error-messages="editForm.errors.price" required></v-text-field>
 
                         <v-textarea v-model="editForm.description" label="Description" prepend-inner-icon="mdi-text"
-                            variant="outlined" rows="4" :error-messages="editForm.errors.description"></v-textarea>
+                            variant="outlined" rows="4" counter="1000"
+                            :error-messages="editForm.errors.description"></v-textarea>
+
+                        <v-text-field v-model="editForm.image_url" label="Image URL (Optional)" type="url"
+                            prepend-inner-icon="mdi-image" variant="outlined" density="comfortable"
+                            :error-messages="editForm.errors.image_url"
+                            placeholder="https://example.com/image.jpg"></v-text-field>
                     </form>
                 </v-card-text>
 
                 <v-card-actions class="pa-6 pt-0">
                     <v-spacer></v-spacer>
-                    <v-btn variant="text" @click="isEditModalOpen = false" size="large">
+                    <v-btn variant="text" @click="closeEditModal" size="large">
                         Cancel
                     </v-btn>
                     <v-btn color="black" variant="elevated" @click="submitEdit" :loading="editForm.processing"
                         size="large" class="elevation-2 text-white">
+                        <v-icon start>mdi-content-save</v-icon>
                         Save Changes
                     </v-btn>
                 </v-card-actions>
@@ -214,14 +290,14 @@
         <!-- Enhanced Delete Confirmation Modal -->
         <v-dialog v-model="isDeleteModalOpen" max-width="500" persistent>
             <v-card class="elevation-8" rounded="lg">
-                <v-card-title class="d-flex align-center bg-grey-darken-3 text-white pa-6">
+                <v-card-title class="d-flex align-center bg-error text-white pa-6">
                     <v-icon icon="mdi-alert-circle" class="me-2" color="white"></v-icon>
                     Confirm Deletion
                 </v-card-title>
 
                 <v-card-text class="pa-6">
                     <div class="text-center">
-                        <v-icon size="64" color="grey-darken-2" class="mb-4">mdi-delete-alert</v-icon>
+                        <v-icon size="64" color="error" class="mb-4">mdi-delete-alert</v-icon>
                         <h3 class="text-h6 mb-4 text-black">Are you sure?</h3>
                         <p class="text-body-1 text-grey-darken-1">
                             You are about to delete the product
@@ -233,11 +309,12 @@
 
                 <v-card-actions class="pa-6 pt-0">
                     <v-spacer></v-spacer>
-                    <v-btn variant="text" @click="isDeleteModalOpen = false" size="large">
+                    <v-btn variant="text" @click="closeDeleteModal" size="large">
                         Cancel
                     </v-btn>
-                    <v-btn color="grey-darken-3" variant="elevated" @click="submitDelete" size="large"
+                    <v-btn color="error" variant="elevated" @click="submitDelete" :loading="deleteLoading" size="large"
                         class="elevation-2 text-white">
+                        <v-icon start>mdi-delete</v-icon>
                         Delete Product
                     </v-btn>
                 </v-card-actions>
@@ -247,31 +324,19 @@
 </template>
 
 <script setup>
-import { ref, computed, watch } from 'vue';
+import { ref, computed, watch, onMounted } from 'vue';
 import { Link, useForm, router } from '@inertiajs/vue3';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 
 /**
  * Define props for this component
- * 
- * Products Object
- * 
- * @param products 
- * 
  */
 const props = defineProps({
     products: Object,
 });
 
 /**
- * 
- * @param query 
- * @param priceFilter 
- * @param sortBy 
- * @param sortDesc 
- * @param itemsPerPage 
- * @param loading 
- * 
+ * Reactive data
  */
 const searchQuery = ref('');
 const priceFilter = ref(null);
@@ -279,30 +344,33 @@ const sortBy = ref('name');
 const sortDesc = ref(false);
 const itemsPerPage = ref(10);
 const loading = ref(false);
+const deleteLoading = ref(false);
 
 /**
- * 
- * @param product 
- * 
- * View Product
- * 
- * 
+ * Items per page options
+ */
+const itemsPerPageOptions = [
+    { value: 5, title: '5' },
+    { value: 10, title: '10' },
+    { value: 25, title: '25' },
+    { value: 50, title: '50' },
+    { value: -1, title: 'All' }
+];
+
+/**
+ * Table headers configuration
  */
 const headers = ref([
-    { title: 'Product', key: 'product', align: 'start', sortable: true, width: '30%' },
+    { title: 'Product', key: 'product', align: 'start', sortable: true, width: '35%' },
     { title: 'Price', key: 'price', align: 'center', sortable: true, width: '15%' },
-    { title: 'Description', key: 'description', align: 'start', sortable: false, width: '40%' },
+    { title: 'Description', key: 'description', align: 'start', sortable: false, width: '35%' },
     { title: 'Actions', key: 'actions', sortable: false, align: 'center', width: '15%' },
 ]);
 
 const tableSortBy = ref([{ key: 'name', order: 'asc' }]);
 
 /**
- * Price Ranges
- * 
- * @param title 
- * @param value 
- * 
+ * Price ranges for filtering
  */
 const priceRanges = [
     { title: 'Under $10', value: 'under-10' },
@@ -313,12 +381,7 @@ const priceRanges = [
 ];
 
 /**
- * Sort Options
- * 
- * @param sortBy 
- * @param sortDesc 
- * 
- * 
+ * Sort options
  */
 const sortOptions = [
     { title: 'Name', value: 'name' },
@@ -327,43 +390,57 @@ const sortOptions = [
 ];
 
 /**
- * 
- * @param product 
- * 
- * View Product
- * 
+ * Modal states
  */
 const isEditModalOpen = ref(false);
 const isDeleteModalOpen = ref(false);
 const productToDelete = ref(null);
 
 /**
- * Form State
- * 
- * @param id 
- * @param name 
- * @param price 
- * @param description 
- * 
+ * Form state for editing
  */
 const editForm = useForm({
     id: null,
     name: '',
     price: '',
     description: '',
+    image_url: '',
 });
 
 /**
- * Filter Products
- * 
- * @param product 
- * @param query 
- * 
- * 
+ * Computed properties for statistics
+ */
+const totalProducts = computed(() => {
+    return props.products.data?.length || 0;
+});
+
+const averagePrice = computed(() => {
+    if (!props.products.data || props.products.data.length === 0) return '0.00';
+    const total = props.products.data.reduce((sum, product) => sum + parseFloat(product.price), 0);
+    return (total / props.products.data.length).toFixed(2);
+});
+
+const highestPrice = computed(() => {
+    if (!props.products.data || props.products.data.length === 0) return '0.00';
+    const highest = Math.max(...props.products.data.map(product => parseFloat(product.price)));
+    return highest.toFixed(2);
+});
+
+const lowestPrice = computed(() => {
+    if (!props.products.data || props.products.data.length === 0) return '0.00';
+    const lowest = Math.min(...props.products.data.map(product => parseFloat(product.price)));
+    return lowest.toFixed(2);
+});
+
+/**
+ * Filter products based on search and price filter
  */
 const filteredProducts = computed(() => {
+    if (!props.products.data) return [];
+
     let filtered = [...props.products.data];
 
+    // Apply price filter
     if (priceFilter.value) {
         filtered = filtered.filter(product => {
             const price = parseFloat(product.price);
@@ -382,23 +459,14 @@ const filteredProducts = computed(() => {
 });
 
 /**
- * Watch search query
- * 
- * @param query 
- * 
- * Watch Search Query
- * 
+ * Watch for sort changes
  */
 watch([sortBy, sortDesc], ([newSortBy, newSortDesc]) => {
     tableSortBy.value = [{ key: newSortBy, order: newSortDesc ? 'desc' : 'asc' }];
 });
 
 /**
- * 
- * @param event 
- * 
- * Handle Search Query Change
- * 
+ * Utility functions
  */
 const clearFilters = () => {
     searchQuery.value = '';
@@ -407,24 +475,20 @@ const clearFilters = () => {
     sortDesc.value = false;
 };
 
-/**
- * 
- * @param price 
- * 
- * Format Price
- * 
- */
+const performSearch = () => {
+    // Optional: Add search functionality if needed
+    console.log('Searching for:', searchQuery.value);
+};
+
 const formatPrice = (price) => {
     return parseFloat(price).toFixed(2);
 };
 
-/**
- * get Price Color
- * 
- * 
- * @param price 
- * 
- */
+const formatDate = (date) => {
+    if (!date) return '';
+    return new Date(date).toLocaleDateString();
+};
+
 const getPriceColor = (price) => {
     const numPrice = parseFloat(price);
     if (numPrice < 10) return 'grey-darken-1';
@@ -434,13 +498,6 @@ const getPriceColor = (price) => {
     return 'grey-darken-4';
 };
 
-/**
- * 
- * @param text 
- * @param length
- * 
- * Truncate Text 
- */
 const truncateText = (text, length) => {
     if (!text) return '';
     if (text.length <= length) return text;
@@ -448,75 +505,93 @@ const truncateText = (text, length) => {
 };
 
 /**
- * 
- * @param product 
- * 
- * View Product
+ * Product actions
  */
 const viewProduct = (product) => {
-    // Implement view logic or navigation
     router.visit(route('products.show', product.id));
 };
 
-/**
- * 
- * @param product 
- * 
- * Open Edit Modal
- */
 const openEditModal = (product) => {
     editForm.id = product.id;
     editForm.name = product.name;
     editForm.price = product.price;
-    editForm.description = product.description;
-    editForm.errors = {};
+    editForm.description = product.description || '';
+    editForm.image_url = product.image_url || '';
+    editForm.clearErrors();
     isEditModalOpen.value = true;
 };
 
-/**
- * Submit Edit
- * 
- * 
- */
+const closeEditModal = () => {
+    isEditModalOpen.value = false;
+    editForm.reset();
+    editForm.clearErrors();
+};
+
 const submitEdit = () => {
     editForm.put(route('products.update', editForm.id), {
         preserveScroll: true,
         onSuccess: () => {
-            isEditModalOpen.value = false;
-            editForm.reset();
+            closeEditModal();
         },
+        onError: (errors) => {
+            console.log('Edit errors:', errors);
+        }
     });
 };
 
-/**
- * 
- * @param product 
- * 
- * Open Delete Modal
- * 
- */
 const openDeleteModal = (product) => {
     productToDelete.value = product;
     isDeleteModalOpen.value = true;
 };
 
-/**
- * Submit Delete
- * 
- * 
- */
+const closeDeleteModal = () => {
+    isDeleteModalOpen.value = false;
+    productToDelete.value = null;
+    deleteLoading.value = false;
+};
+
 const submitDelete = () => {
+    deleteLoading.value = true;
     router.delete(route('products.destroy', productToDelete.value.id), {
         preserveScroll: true,
         onSuccess: () => {
-            isDeleteModalOpen.value = false;
-            productToDelete.value = null;
+            closeDeleteModal();
         },
+        onError: () => {
+            deleteLoading.value = false;
+        },
+        onFinish: () => {
+            deleteLoading.value = false;
+        }
     });
 };
+
+/**
+ * Component mounted
+ */
+onMounted(() => {
+    // Any initialization logic
+    console.log('Products component mounted');
+});
 </script>
 
 <style scoped>
+/* Success Alert Custom Styling */
+.success-alert {
+    background: linear-gradient(135deg, #4caf50 0%, #45a049 100%) !important;
+    color: white !important;
+    border-left: 4px solid #2e7d32 !important;
+}
+
+.success-alert .v-alert__content {
+    color: white !important;
+}
+
+.success-alert .v-icon {
+    color: white !important;
+}
+
+/* Hover Effects */
 .hover-black:hover {
     color: black !important;
     background-color: rgba(0, 0, 0, 0.05);
@@ -526,6 +601,7 @@ const submitDelete = () => {
     max-width: 300px;
 }
 
+/* Card Animations */
 .v-card {
     transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
 }
@@ -534,6 +610,7 @@ const submitDelete = () => {
     transform: translateY(-2px);
 }
 
+/* Button Animations */
 .v-btn {
     transition: all 0.2s ease-in-out;
 }
@@ -542,10 +619,12 @@ const submitDelete = () => {
     transform: translateY(-1px);
 }
 
-.v-data-table>>>.v-data-table__tr:hover {
+/* Data Table Row Hover */
+.v-data-table :deep(.v-data-table__tr:hover) {
     background-color: rgba(0, 0, 0, 0.04) !important;
 }
 
+/* Avatar Hover Effect */
 .v-avatar {
     transition: all 0.3s ease;
 }
@@ -554,13 +633,14 @@ const submitDelete = () => {
     transform: scale(1.05);
 }
 
-/* Custom scrollbar for webkit browsers */
+/* Custom Scrollbar */
 ::-webkit-scrollbar {
     width: 8px;
 }
 
 ::-webkit-scrollbar-track {
     background: #f1f1f1;
+    border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb {
@@ -570,5 +650,63 @@ const submitDelete = () => {
 
 ::-webkit-scrollbar-thumb:hover {
     background: #555;
+}
+
+/* Statistics Cards Animation */
+.v-col .v-card {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.v-col .v-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15) !important;
+}
+
+/* Loading Animation */
+@keyframes pulse {
+    0% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: 0.5;
+    }
+
+    100% {
+        opacity: 1;
+    }
+}
+
+.v-skeleton-loader {
+    animation: pulse 1.5s ease-in-out infinite;
+}
+
+/* Modal Animations */
+.v-dialog .v-card {
+    animation: slideIn 0.3s ease-out;
+}
+
+@keyframes slideIn {
+    from {
+        transform: translateY(-50px);
+        opacity: 0;
+    }
+
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+/* Alert Transitions */
+.v-expand-transition-enter-active,
+.v-expand-transition-leave-active {
+    transition: all 0.3s ease;
+}
+
+.v-expand-transition-enter-from,
+.v-expand-transition-leave-to {
+    opacity: 0;
+    transform: translateY(-20px);
 }
 </style>
