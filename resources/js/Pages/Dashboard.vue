@@ -106,6 +106,7 @@ const isLoading = ref(true);
 /**
  * Palette Color Scheme
  * 
+ * 
  */
 const palette = {
     background: '#F9FAFB', // Slightly off-white for a softer feel
@@ -120,6 +121,8 @@ const palette = {
 
 /**
  * Reactive Styles Object
+ * 
+ * 
  * 
  */
 const styles = reactive({
@@ -146,6 +149,7 @@ const styles = reactive({
 /**
  * Stats Cards Data
  * 
+ * 
  */
 const statsCards = ref([
     { title: 'Total Sales', value: '$24,850', icon: 'mdi-chart-line' },
@@ -156,6 +160,7 @@ const statsCards = ref([
 
 /**
  * Chart Options Object
+ * 
  * 
  */
 const chartOptions = {

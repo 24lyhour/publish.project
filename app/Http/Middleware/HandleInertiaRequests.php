@@ -6,6 +6,7 @@ use App\Services\MenuService;
 use Illuminate\Http\Request;
 use Inertia\Middleware;
 use Tighten\Ziggy\Ziggy;
+use Closure;
 
 class HandleInertiaRequests extends Middleware
 {
@@ -18,6 +19,11 @@ class HandleInertiaRequests extends Middleware
 
     /**
      * Determine the current asset version.
+     * 
+     * @param Request $request
+     * 
+     * @return string|null
+     * 
      */
     public function version(Request $request): string|null
     {
@@ -41,5 +47,46 @@ class HandleInertiaRequests extends Middleware
             ],
             'menu' => fn () => app(MenuService::class)->getMenu(),
         ]);
+    }
+
+    /**
+     * Handle an incoming request.
+     * 
+     * @param Request $request
+     * @param Closure $next
+     * 
+     * @return void
+     * 
+     * 
+     */
+    public function handle(Request $request, Closure $next)
+    {
+
+        app(MenuService::class)->addMenuItem(
+            'main',
+            'dashboard',
+            'Dashboard',
+            'dashboard',
+            'mdi-view-dashboard',
+            1,
+            'VIEW_DASHBOARD'
+        );
+
+        app(MenuService::class)->addMenuItem(
+            'main',
+            'products',
+            'Products',
+            'products.index',
+            'mdi-package-variant-closed',
+            2,
+            'VIEW_PRODUCTS',
+            null,
+            ['style' => ['color' => 'black', 'marginTop' => '10px']]
+        );
+
+        // // Example: Add submenu under Products if needed
+        // app(MenuService::class)->addSubmenuItem('main', 'Products', 'Product List', route('products.index'), 'mdi-package', 1, 'VIEW_PRODUCTS');
+
+        return parent::handle($request, $next);
     }
 }

@@ -9,14 +9,24 @@ class AppServiceProvider extends ServiceProvider
 {
     /**
      * Register any application services.
+     * 
+     * @return void
+     * 
      */
     public function register(): void
     {
-        //
+        $this->app->singleton(\App\Services\MenuService::class, function ($app) {
+            return new \App\Services\MenuService();
+        });
     }
+    
 
     /**
      * Bootstrap any application services.
+     * 
+     * @return void
+     * 
+     * 
      */
     public function boot(): void
     {

@@ -1,349 +1,609 @@
 <template>
-    <div v-if="product && product.id">
-        <v-card class="mx-auto product-card" :max-width="cardWidth" elevation="8" rounded="lg" @click="handleCardClick"
-            :class="{ 'card-hover': isHoverable }">
-            <!-- Product Image with Badges -->
-            <div class="image-container">
-                <v-img :src="product.imageUrl" :height="imageHeight" cover :alt="`Image of ${product.name}`">
-                    <template v-slot:placeholder>
-                        <div class="d-flex align-center justify-center fill-height">
-                            <v-progress-circular color="grey-lighten-4" indeterminate></v-progress-circular>
-                        </div>
-                    </template>
-                </v-img>
-
-                <!-- Status Badges -->
-                <div class="badges-container">
-                    <v-chip v-if="product.isNew" color="success" size="small" class="badge-chip">
-                        NEW
-                    </v-chip>
-                    <v-chip v-if="product.onSale" color="error" size="small" class="badge-chip">
-                        SALE
-                    </v-chip>
-                    <v-chip v-if="product.stock <= 5 && product.stock > 0" color="warning" size="small"
-                        class="badge-chip">
-                        LOW STOCK
-                    </v-chip>
-                    <v-chip v-if="product.stock === 0" color="error" variant="elevated" size="small" class="badge-chip">
-                        OUT OF STOCK
-                    </v-chip>
-                </div>
-
-                <!-- Wishlist/Favorite Button -->
-                <v-btn v-if="showWishlist" icon class="wishlist-btn" @click.stop="toggleWishlist"
-                    :color="isWishlisted ? 'error' : 'white'">
-                    <v-icon>{{ isWishlisted ? 'mdi-heart' : 'mdi-heart-outline' }}</v-icon>
-                </v-btn>
-            </div>
-
-            <!-- Product Info Header -->
-            <div class="d-flex justify-space-between align-start pa-5">
-                <div class="product-info">
-                    <v-card-title class="pa-0 text-h5 font-weight-bold">
-                        {{ product.name }}
-                    </v-card-title>
-
-                    <!-- Category/Brand -->
-                    <div v-if="product.category || product.brand" class="mt-1">
-                        <v-chip v-if="product.category" size="x-small" variant="outlined" class="mr-2">
-                            {{ product.category }}
-                        </v-chip>
-                        <span v-if="product.brand" class="text-caption text-grey">
-                            by {{ product.brand }}
-                        </span>
-                    </div>
-
-                    <!-- Rating -->
-                    <div v-if="product.rating" class="d-flex align-center mt-2">
-                        <v-rating :model-value="product.rating" color="amber" density="compact" size="small"
-                            readonly></v-rating>
-                        <span class="text-caption text-grey ml-2">
-                            ({{ product.reviewCount || 0 }} reviews)
-                        </span>
+    <div class="admin-product-view">
+        <!-- Header Section -->
+        <v-card class="mb-6 hover-card" elevation="2">
+            <v-card-title class="d-flex align-center justify-space-between">
+                <div class="d-flex align-center">
+                    <v-btn icon variant="text" @click="handleCallBack" class="mr-3">
+                        <v-icon>mdi-arrow-left</v-icon>
+                    </v-btn>
+                    <div>
+                        <h2 class="text-h5 font-weight-bold">Product Details <VIcon>mdi-package-variant-closed</VIcon>
+                        </h2>
+                        <p class="text-subtitle-2 text-medium-emphasis mb-0">
+                            ID: {{ product.id }} | SKU: {{ product.sku || 'N/A' }}
+                        </p>
                     </div>
                 </div>
-
-                <!-- Price Section -->
-                <div class="price-section ml-4">
-                    <div v-if="product.originalPrice && product.originalPrice > product.price"
-                        class="text-decoration-line-through text-caption text-grey">
-                        {{ formatPrice(product.originalPrice) }}
-                    </div>
-                    <v-chip color="primary" variant="elevated" size="large">
-                        {{ formattedPrice }}
-                    </v-chip>
-                    <div v-if="product.originalPrice && product.originalPrice > product.price"
-                        class="text-success text-caption mt-1">
-                        Save {{ formatPrice(product.originalPrice - product.price) }}
-                    </div>
-                </div>
-            </div>
-
-            <v-divider class="mx-4 mb-2"></v-divider>
-
-            <!-- Product Description -->
-            <v-card-text class="text-subtitle-1">
-                {{ truncateDescription ? truncatedDescription : product.description }}
-                <v-btn v-if="product.description && product.description.length > 100 && truncateDescription"
-                    variant="text" size="small" @click="showFullDescription = !showFullDescription" class="pa-0 ml-2">
-                    {{ showFullDescription ? 'Show Less' : 'Read More' }}
-                </v-btn>
-            </v-card-text>
-
-            <!-- Product Features/Tags -->
-            <div v-if="product.features && product.features.length" class="px-5 pb-3">
-                <div class="text-caption text-grey mb-2">Features:</div>
-                <div class="d-flex flex-wrap gap-1">
-                    <v-chip v-for="feature in product.features.slice(0, 3)" :key="feature" size="x-small"
-                        variant="outlined" color="primary">
-                        {{ feature }}
-                    </v-chip>
-                    <v-chip v-if="product.features.length > 3" size="x-small" variant="outlined" color="primary">
-                        +{{ product.features.length - 3 }} more
-                    </v-chip>
-                </div>
-            </div>
-
-            <!-- Action Buttons -->
-            <v-card-actions v-if="showActions" class="px-5 pb-5">
-                <v-btn color="primary" variant="elevated" block @click.stop="handleAddToCart"
-                    :disabled="product.stock === 0" :loading="isAddingToCart">
-                    <v-icon left>mdi-cart-plus</v-icon>
-                    {{ product.stock === 0 ? 'Out of Stock' : 'Add to Cart' }}
-                </v-btn>
-
-                <v-btn v-if="showQuickView" variant="outlined" class="ml-2" @click.stop="handleQuickView">
-                    <v-icon>mdi-eye</v-icon>
-                </v-btn>
-            </v-card-actions>
+            </v-card-title>
         </v-card>
-    </div>
 
-    <!-- Fallback State -->
-    <div v-else class="text-center pa-10">
-        <v-icon size="60" color="grey-lighten-1">mdi-package-variant-closed</v-icon>
-        <p class="text-h6 text-grey mt-4">Product Information Not Available</p>
+        <v-row>
+            <!-- Left Column - Product Image & Basic Info -->
+            <v-col cols="12" md="5">
+                <!-- Product Image -->
+                <v-card class="mb-4 hover-card hover-lift" elevation="2">
+                    <v-card-title class="pb-2">
+                        <v-icon start>mdi-image</v-icon>
+                        Product Image
+                    </v-card-title>
+                    <v-card-text>
+                        <div class="image-container">
+                            <v-img :src="product.imageUrl" :alt="product.name" aspect-ratio="1" class="product-image"
+                                cover>
+                                <template v-slot:placeholder>
+                                    <div class="d-flex align-center justify-center fill-height">
+                                        <v-progress-circular indeterminate></v-progress-circular>
+                                    </div>
+                                </template>
+                            </v-img>
+
+                            <!-- Status Badges Overlay -->
+                            <div class="status-badges">
+                                <v-chip v-if="product.isNew" color="success" size="small" variant="elevated">
+                                    <v-icon start>mdi-new-box</v-icon>
+                                    NEW
+                                </v-chip>
+                                <v-chip v-if="product.onSale" color="error" size="small" variant="elevated">
+                                    <v-icon start>mdi-sale</v-icon>
+                                    SALE
+                                </v-chip>
+                            </div>
+                        </div>
+                    </v-card-text>
+                </v-card>
+
+
+            </v-col>
+
+            <!-- Right Column - Detailed Information -->
+            <v-col cols="12" md="7">
+                <!-- Product Information -->
+                <v-card class="mb-4 hover-card hover-glow" elevation="2">
+                    <v-card-title>
+                        <v-icon start>mdi-information</v-icon>
+                        Product Information
+                    </v-card-title>
+                    <v-card-text>
+                        <!-- Product Name & Category -->
+                        <div class="mb-4">
+                            <v-chip v-if="product.category" color="primary" variant="outlined" size="small"
+                                class="mb-2">
+                                {{ product.category }}
+                            </v-chip>
+                            <h3 class="text-h5 font-weight-bold mb-2">{{ product.name }}</h3>
+                            <p v-if="product.brand" class="text-subtitle-1 text-medium-emphasis">
+                                Brand: {{ product.brand }}
+                            </p>
+                        </div>
+
+                        <!-- Pricing Section -->
+                        <div class="pricing-section mb-4">
+                            <v-row dense align="center">
+                                <v-col cols="auto">
+                                    <div class="text-h6 font-weight-bold text-success">
+                                        {{ formattedPrice }}
+                                    </div>
+                                </v-col>
+                                <v-col cols="auto" v-if="hasDiscount">
+                                    <div class="text-body-2 text-decoration-line-through text-medium-emphasis">
+                                        {{ formattedOriginalPrice }}
+                                    </div>
+                                </v-col>
+                                <v-col cols="auto" v-if="hasDiscount">
+                                    <v-chip color="success" size="small" variant="tonal">
+                                        {{ discountPercentage }}% OFF
+                                    </v-chip>
+                                </v-col>
+                            </v-row>
+                        </div>
+
+                        <!-- Rating -->
+                        <div v-if="product.rating" class="rating-section mb-4">
+                            <div class="d-flex align-center gap-3">
+                                <v-rating :model-value="product.rating" color="amber" density="compact"
+                                    readonly></v-rating>
+                                <span class="text-body-2">
+                                    {{ product.rating }}/5 ({{ product.reviewCount || 0 }} reviews)
+                                </span>
+                            </div>
+                        </div>
+
+                        <!-- Description -->
+                        <div class="description-section">
+                            <h4 class="text-subtitle-1 font-weight-bold mb-2">Description</h4>
+                            <p class="text-body-2">{{ product.description }}</p>
+                        </div>
+                    </v-card-text>
+                </v-card>
+
+                <!-- Stock & Inventory -->
+                <v-card class="mb-4 hover-card hover-tilt" elevation="2">
+                    <v-card-title>
+                        <v-icon start>mdi-package-variant</v-icon>
+                        Stock & Inventory
+                    </v-card-title>
+                    <v-card-text>
+                        <v-row dense>
+                            <v-col cols="12" sm="6">
+                                <div class="d-flex align-center mb-3">
+                                    <v-icon :color="stockColor" class="mr-2">{{ stockIcon }}</v-icon>
+                                    <div>
+                                        <div class="text-body-1 font-weight-medium" :class="stockTextColor">
+                                            {{ stockText }}
+                                        </div>
+                                        <div class="text-caption text-medium-emphasis">
+                                            Current Stock Level
+                                        </div>
+                                    </div>
+                                </div>
+                            </v-col>
+                            <v-col cols="12" sm="6">
+                                <div class="text-body-1 font-weight-medium">
+                                    {{ product.reservedStock || 0 }} Reserved
+                                </div>
+                                <div class="text-caption text-medium-emphasis">
+                                    Pending Orders
+                                </div>
+                            </v-col>
+                        </v-row>
+                        <v-progress-linear v-if="product.stock > 0" :model-value="stockPercentage" :color="stockColor"
+                            height="8" rounded class="mt-3"></v-progress-linear>
+                    </v-card-text>
+                </v-card>
+
+                <!-- Quick Stats -->
+                <v-card class="hover-card hover-scale" elevation="2">
+                    <v-card-title>
+                        <v-icon start>mdi-chart-box</v-icon>
+                        Quick Stats
+                    </v-card-title>
+                    <v-card-text>
+                        <v-row dense>
+                            <v-col cols="6">
+                                <v-card variant="tonal" color="primary" class="stat-card hover-bounce">
+                                    <v-card-text class="text-center">
+                                        <div class="text-h6 font-weight-bold">{{ product.viewCount || 0 }}</div>
+                                        <div class="text-caption">Total Views</div>
+                                    </v-card-text>
+                                </v-card>
+                            </v-col>
+                            <v-col cols="6">
+                                <v-card variant="tonal" color="success" class="stat-card hover-bounce">
+                                    <v-card-text class="text-center">
+                                        <div class="text-h6 font-weight-bold">{{ product.price || 0 }}</div>
+                                        <div class="text-caption">Total Sales</div>
+                                    </v-card-text>
+                                </v-card>
+                            </v-col>
+                            <v-col cols="6">
+                                <v-card variant="tonal" color="info" class="stat-card hover-bounce">
+                                    <v-card-text class="text-center">
+                                        <div class="text-h6 font-weight-bold">{{ formattedRevenue }}</div>
+                                        <div class="text-caption">Revenue</div>
+                                    </v-card-text>
+                                </v-card>
+                            </v-col>
+                            <v-col cols="6">
+                                <v-card variant="tonal" color="warning" class="stat-card hover-bounce">
+                                    <v-card-text class="text-center">
+                                        <div class="text-h6 font-weight-bold">{{ product.wishlistCount || 0 }}</div>
+                                        <div class="text-caption">Wishlisted</div>
+                                    </v-card-text>
+                                </v-card>
+                            </v-col>
+                        </v-row>
+                    </v-card-text>
+                </v-card>
+
+                <!-- Features -->
+                <v-card v-if="product.features && product.features.length" class="hover-card hover-pulse" elevation="2">
+                    <v-card-title>
+                        <v-icon start>mdi-star</v-icon>
+                        Features
+                    </v-card-title>
+                    <v-card-text>
+                        <div class="features-grid">
+                            <v-chip v-for="feature in product.features" :key="feature" variant="outlined"
+                                color="primary" size="small" class="ma-1 hover-chip">
+                                <v-icon start>mdi-check-circle</v-icon>
+                                {{ feature }}
+                            </v-chip>
+                        </div>
+                    </v-card-text>
+                </v-card>
+            </v-col>
+        </v-row>
+
+        <!-- Snackbar for notifications -->
+        <v-snackbar v-model="snackbar.show" :color="snackbar.color" :timeout="3000" location="bottom">
+            {{ snackbar.message }}
+            <template v-slot:actions>
+                <v-btn color="white" variant="text" @click="snackbar.show = false">
+                    Close
+                </v-btn>
+            </template>
+        </v-snackbar>
     </div>
 </template>
 
 <script setup>
-import { computed, ref } from 'vue';
+import { computed, reactive } from 'vue'
+import { router } from '@inertiajs/vue3'
 
 /**
- * Props Define Object
+ * Props Definition
+ * 
+ * @type {Object}
+ * @property {Object} product - The product object
+ * @property {string} product.id - The product ID
+ * @property {string} product.name - The product name
+ * @property {string} product.description - The product description
+ * @property {string} product.imageUrl - The product image URL
+ * @property {number} product.price - The product price
+ * @property {number} product.originalPrice - The original product price
+ * @property {string} product.category - The product category
+ * @property {string} product.brand - The product brand
+ * @property {number} product.rating - The product rating
+ * @property {number} product.reviewCount - The number of reviews for the product
+ * @property {number} product.stock - The current stock level
+ * @property {number} product.maxStock - The maximum stock level
+ * @property {number} product.reservedStock - The reserved stock level
+ * @property {number} product.viewCount - The total view count
+ * @property {number} product.salesCount - The total sales count
+ * @property {number} product.wishlistCount - The total wishlist count
+ * @property {string[]} product.features - An array of product features
+ * @property {boolean} product.isNew - Indicates if the product is new
+ * @property {boolean} product.onSale - Indicates if the product is on sale
  * 
  */
 const props = defineProps({
     product: {
         type: Object,
         required: true,
-        default: () => ({
-            id: null,
-            name: 'Loading...',
-            description: 'Please wait while we load the product details.',
-            price: 0,
-            originalPrice: null,
-            imageUrl: '',
-            category: null,
-            brand: null,
-            rating: null,
-            reviewCount: 0,
-            stock: 0,
-            isNew: false,
-            onSale: false,
-            features: []
-        })
-    },
-    cardWidth: {
-        type: [String, Number],
-        default: 550
-    },
-    imageHeight: {
-        type: String,
-        default: '300px'
-    },
-    isHoverable: {
-        type: Boolean,
-        default: true
-    },
-    showWishlist: {
-        type: Boolean,
-        default: true
-    },
-    showActions: {
-        type: Boolean,
-        default: true
-    },
-    showQuickView: {
-        type: Boolean,
-        default: true
-    },
-    truncateDescription: {
-        type: Boolean,
-        default: true
     }
-});
+})
 
 /**
- * Emit define
+ * Reactive State - Snackbar
+ * 
+ * @type {Object}
+ * @property {boolean} show - Whether the snackbar is visible
+ * @property {string} message - The message to display in the snackbar
+ * @property {string} color - The color of the snackbar
  * 
  */
-const emit = defineEmits([
-    'click',
-    'add-to-cart',
-    'toggle-wishlist',
-    'quick-view'
-]);
+const snackbar = reactive({
+    show: false,
+    message: '',
+    color: 'success'
+})
 
 /**
- * Reactive 
+ * Computed Properties for Pricing
  * 
- */
-const isWishlisted = ref(false);
-const isAddingToCart = ref(false);
-const showFullDescription = ref(false);
-
-/**
- * Format Price
- * 
- * Computed Price
+ * @type {Object}
+ * @property {string} formattedPrice - The formatted price
+ * @property {string} formattedOriginalPrice - The formatted original price
+ *
  * 
  */
 const formattedPrice = computed(() => {
-    if (typeof props.product.price !== 'number') {
-        return '$0.00';
-    }
-    return new Intl.NumberFormat('en-US', {
-        style: 'currency',
-        currency: 'USD',
-    }).format(props.product.price);
-});
+    return formatPrice(props.product.price || 0)
+})
 
 /**
- * Truncated Description
+ * Format Original Price
  * 
  */
-const truncatedDescription = computed(() => {
-    if (!props.product.description) return '';
-    if (showFullDescription.value || props.product.description.length <= 100) {
-        return props.product.description;
-    }
-    return props.product.description.substring(0, 100) + '...';
-});
+const formattedOriginalPrice = computed(() => {
+    return formatPrice(props.product.originalPrice || 0)
+})
 
 /**
- * Format Price
+ * Format Revenue 
  * 
- * @param price 
  * 
+ */
+const formattedRevenue = computed(() => {
+    const revenue = (props.product.salesCount || 0) * (props.product.price || 0)
+    return formatPrice(revenue)
+})
+
+/**
+ * 
+ * Computed Properties for Discount
+ * 
+ */
+const hasDiscount = computed(() => {
+    return props.product.originalPrice &&
+        props.product.originalPrice > props.product.price
+})
+
+/**
+ * Discount Percentage
+ * 
+ */
+const discountPercentage = computed(() => {
+    if (!hasDiscount.value) return 0
+    const discount = ((props.product.originalPrice - props.product.price) / props.product.originalPrice) * 100
+    return Math.round(discount)
+})
+
+/**
+ * Computed Properties for Stock Management
+ * 
+ */
+const stockColor = computed(() => {
+    const stock = props.product.stock || 0
+    if (stock === 0) return 'error'
+    if (stock < 10) return 'warning'
+    return 'success'
+})
+
+/**
+ * Computed Stock Icon
+ * 
+ */
+const stockIcon = computed(() => {
+    const stock = props.product.stock || 0
+    if (stock === 0) return 'mdi-alert-circle'
+    if (stock < 10) return 'mdi-alert'
+    return 'mdi-check-circle'
+})
+
+/**
+ * Stock Text
+ * 
+ */
+const stockText = computed(() => {
+    const stock = props.product.stock || 0
+    if (stock === 0) return 'Out of Stock'
+    if (stock < 10) return `Low Stock (${stock} items)`
+    return `In Stock (${stock} items)`
+})
+
+/**
+ * Stock text color 
+ * 
+ */
+const stockTextColor = computed(() => {
+    const stock = props.product.stock || 0
+    if (stock === 0) return 'text-error'
+    if (stock < 10) return 'text-warning'
+    return 'text-success'
+})
+
+/**
+ * Stock percentage Computed
+ * 
+ */
+const stockPercentage = computed(() => {
+    const stock = props.product.stock || 0
+    const maxStock = props.product.maxStock || 100
+    return Math.min((stock / maxStock) * 100, 100)
+})
+
+/**
+ * Utility Methods
  */
 const formatPrice = (price) => {
     return new Intl.NumberFormat('en-US', {
         style: 'currency',
         currency: 'USD',
-    }).format(price);
-};
+    }).format(price || 0)
+}
 
 /**
- * Handle Card Click
+ * Handle Call Back
+ * 
  * 
  */
-const handleCardClick = () => {
-    emit('click', props.product);
-};
-
-const handleAddToCart = async () => {
-    isAddingToCart.value = true;
-    try {
-        emit('add-to-cart', props.product);
-        // Simulate API call
-        await new Promise(resolve => setTimeout(resolve, 1000));
-    } finally {
-        isAddingToCart.value = false;
-    }
-};
-
-/**
- * Toggle Wishlist
- * 
- */
-const toggleWishlist = () => {
-    isWishlisted.value = !isWishlisted.value;
-    emit('toggle-wishlist', {
-        product: props.product,
-        isWishlisted: isWishlisted.value
-    });
-};
-
-/**
- * Handle Quick View
- * 
- * @param product 
- * 
- */
-const handleQuickView = () => {
-    emit('quick-view', props.product);
-};
+const handleCallBack = () => {
+    router.visit(route('products.index'))
+}
 </script>
 
 <style scoped>
-.product-card {
-    transition: all 0.3s ease;
-    cursor: pointer;
-}
-
-.card-hover:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15) !important;
+.admin-product-view {
+    padding: 24px;
+    background-color: #f5f5f5;
+    min-height: 100vh;
 }
 
 .image-container {
     position: relative;
+    border-radius: 12px;
+    overflow: hidden;
 }
 
-.badges-container {
+.product-image {
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease;
+}
+
+.status-badges {
     position: absolute;
     top: 12px;
     left: 12px;
     display: flex;
     flex-direction: column;
-    gap: 6px;
+    gap: 8px;
+    z-index: 2;
 }
 
-.badge-chip {
-    font-weight: bold;
-    font-size: 0.7rem;
+.pricing-section {
+    padding: 16px;
+    background-color: rgba(0, 0, 0, 0.02);
+    border-radius: 8px;
 }
 
-.wishlist-btn {
-    position: absolute;
-    top: 12px;
-    right: 12px;
-    background: rgba(255, 255, 255, 0.9);
-    backdrop-filter: blur(4px);
+.features-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
 }
 
-.product-info {
-    flex: 1;
-    min-width: 0;
-}
-
-.price-section {
-    text-align: right;
-    flex-shrink: 0;
+.v-card {
+    border-radius: 12px;
 }
 
 .v-card-title {
-    white-space: normal;
-    line-height: 1.3;
+    background-color: rgba(0, 0, 0, 0.02);
+    font-weight: 600;
 }
 
-.v-card-text {
-    line-height: 1.75;
-    color: #333;
+/* Cool Hover Effects */
+.hover-card {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    cursor: pointer;
 }
 
-.gap-1 {
-    gap: 4px;
+.hover-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15) !important;
+}
+
+/* Lift Effect */
+.hover-lift:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.2) !important;
+}
+
+.hover-lift:hover .product-image {
+    transform: scale(1.02);
+}
+
+/* Glow Effect */
+.hover-glow {
+    position: relative;
+    overflow: hidden;
+}
+
+.hover-glow::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+    transition: left 0.5s;
+    z-index: 1;
+}
+
+.hover-glow:hover::before {
+    left: 100%;
+}
+
+.hover-glow:hover {
+    box-shadow: 0 0 30px rgba(25, 118, 210, 0.3) !important;
+}
+
+/* Tilt Effect */
+.hover-tilt:hover {
+    transform: perspective(1000px) rotateX(2deg) rotateY(-2deg) translateY(-4px);
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2) !important;
+}
+
+/* Scale Effect */
+.hover-scale:hover {
+    transform: scale(1.02) translateY(-2px);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15) !important;
+}
+
+/* Pulse Effect */
+.hover-pulse:hover {
+    animation: pulse 0.6s ease-in-out;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15) !important;
+}
+
+@keyframes pulse {
+    0% {
+        transform: scale(1);
+    }
+
+    50% {
+        transform: scale(1.03);
+    }
+
+    100% {
+        transform: scale(1);
+    }
+}
+
+/* Stat Cards Hover */
+.stat-card {
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.hover-bounce:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
+}
+
+/* Feature Chips Hover */
+.hover-chip {
+    transition: all 0.2s ease;
+    cursor: pointer;
+}
+
+.hover-chip:hover {
+    transform: translateY(-2px) scale(1.05);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+/* Responsive adjustments */
+@media (max-width: 960px) {
+    .admin-product-view {
+        padding: 16px;
+    }
+
+    /* Reduce hover effects on mobile */
+    .hover-card:hover {
+        transform: translateY(-1px);
+    }
+
+    .hover-lift:hover {
+        transform: translateY(-3px);
+    }
+
+    .hover-tilt:hover {
+        transform: perspective(1000px) rotateX(1deg) rotateY(-1deg) translateY(-2px);
+    }
+}
+
+@media (max-width: 600px) {
+    .admin-product-view {
+        padding: 12px;
+    }
+
+    .v-card-title .d-flex {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 16px;
+    }
+
+    /* Disable complex hover effects on small screens */
+    .hover-tilt:hover {
+        transform: translateY(-2px);
+    }
+
+    .hover-glow::before {
+        display: none;
+    }
+}
+
+/* Add smooth transitions for all interactive elements */
+* {
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+/* Enhanced focus states for accessibility */
+.hover-card:focus-visible {
+    outline: 2px solid #1976d2;
+    outline-offset: 2px;
 }
 </style>
