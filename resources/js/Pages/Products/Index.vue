@@ -69,7 +69,7 @@
                         <v-col cols="12" md="4">
                             <v-text-field v-model="searchQuery" label="Search products..."
                                 prepend-inner-icon="mdi-magnify" variant="outlined" density="comfortable" clearable
-                                hide-details @keyup.enter="performSearch"></v-text-field>
+                                hide-details></v-text-field>
                         </v-col>
                         <v-col cols="12" md="3">
                             <v-select v-model="priceFilter" :items="priceRanges" label="Price Range"
@@ -475,20 +475,39 @@ const clearFilters = () => {
     sortDesc.value = false;
 };
 
-const performSearch = () => {
-    // Optional: Add search functionality if needed
-    console.log('Searching for:', searchQuery.value);
-};
-
+/**
+ * 
+ * @param price 
+ * 
+ * @returns {string}
+ * 
+ * Format Price Function
+ */
 const formatPrice = (price) => {
     return parseFloat(price).toFixed(2);
 };
 
+/**
+ * 
+ * @param date 
+ * 
+ * @returns {string}
+ * 
+ * Format Date Function
+ */
 const formatDate = (date) => {
     if (!date) return '';
     return new Date(date).toLocaleDateString();
 };
 
+/**
+ * 
+ * @param price 
+ * 
+ * @returns {string}
+ * 
+ * Get Price Color Function
+ */
 const getPriceColor = (price) => {
     const numPrice = parseFloat(price);
     if (numPrice < 10) return 'grey-darken-1';
@@ -498,6 +517,16 @@ const getPriceColor = (price) => {
     return 'grey-darken-4';
 };
 
+/**
+ * 
+ * @param text 
+ * 
+ * @param length 
+ * 
+ * @returns {string}
+ * 
+ * Truncate Text Function
+ */
 const truncateText = (text, length) => {
     if (!text) return '';
     if (text.length <= length) return text;
@@ -506,11 +535,26 @@ const truncateText = (text, length) => {
 
 /**
  * Product actions
+ * 
+ * @param product 
+ * 
+ * @returns {void}
+ * 
+ * View Product Function
  */
 const viewProduct = (product) => {
     router.visit(route('products.show', product.id));
 };
 
+/**
+ * 
+ * @param product 
+ * 
+ * @returns {void}
+ * 
+ * Open Edit Modal Function
+ * 
+ */
 const openEditModal = (product) => {
     editForm.id = product.id;
     editForm.name = product.name;
@@ -521,12 +565,25 @@ const openEditModal = (product) => {
     isEditModalOpen.value = true;
 };
 
+/**
+ * Close Edit Modal Function
+ * 
+ * @returns {void}
+ * 
+ * 
+ */
 const closeEditModal = () => {
     isEditModalOpen.value = false;
     editForm.reset();
     editForm.clearErrors();
 };
 
+/**
+ * Handle Submit Edit Function
+ * 
+ * @returns {void}  
+ * 
+ */
 const submitEdit = () => {
     editForm.put(route('products.update', editForm.id), {
         preserveScroll: true,
@@ -539,17 +596,38 @@ const submitEdit = () => {
     });
 };
 
+/**
+ * 
+ * @param product 
+ * 
+ * @returns {void}
+ * 
+ * Open Delete Modal Function
+ */
 const openDeleteModal = (product) => {
     productToDelete.value = product;
     isDeleteModalOpen.value = true;
 };
 
+/**
+ * CLose Delete Modal Function
+ * 
+ * @returns {void}
+ * 
+ * 
+ */
 const closeDeleteModal = () => {
     isDeleteModalOpen.value = false;
     productToDelete.value = null;
     deleteLoading.value = false;
 };
 
+/**
+ * Submit delete functions
+ * 
+ * @returns {void}
+ * 
+ */
 const submitDelete = () => {
     deleteLoading.value = true;
     router.delete(route('products.destroy', productToDelete.value.id), {

@@ -73,18 +73,29 @@ import { ref, watch, onUnmounted } from 'vue';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import { Head, Link, useForm } from '@inertiajs/vue3';
 
-// Inertia form helper now includes the 'image' field
+/**
+ * form UseForm Object 
+ * 
+ */
 const form = useForm({
     name: '',
     description: '',
     price: '',
-    image: null, // Use null for file inputs
+    image: null,
 });
 
-// A ref to hold the temporary URL for the image preview
+/**
+ * Preview Url
+ * 
+ */
 const previewUrl = ref(null);
 
-// Watch for changes to the form's image field
+/**
+ * 
+ * @param newFile 
+ *  
+ * Watch Image
+ */
 watch(() => form.image, (newFile) => {
     if (newFile) {
         // Create a temporary URL for the selected file to show a preview
@@ -94,18 +105,31 @@ watch(() => form.image, (newFile) => {
     }
 });
 
-// Function to clear the selected image and its preview
+/**
+ * Clear Image 
+ * 
+ * handle clear image
+ * 
+ */
 const clearImage = () => {
     form.image = null;
 };
 
-// The submit function remains simple because Inertia automatically handles
-// multipart/form-data when a File object is present.
+/**
+ * 
+ * @param event 
+ * 
+ * Submit
+ */
 const submit = () => {
     form.post(route('products.store'));
 };
 
-// Clean up the object URL to prevent memory leaks when the component is destroyed
+/**
+ * on Unmounted
+ * 
+ * @param value
+ */
 onUnmounted(() => {
     if (previewUrl.value) {
         URL.revokeObjectURL(previewUrl.value);

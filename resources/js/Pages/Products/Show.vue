@@ -129,6 +129,10 @@
 <script setup>
 import { computed, ref } from 'vue';
 
+/**
+ * Props Define Object
+ * 
+ */
 const props = defineProps({
     product: {
         type: Object,
@@ -180,6 +184,10 @@ const props = defineProps({
     }
 });
 
+/**
+ * Emit define
+ * 
+ */
 const emit = defineEmits([
     'click',
     'add-to-cart',
@@ -187,12 +195,20 @@ const emit = defineEmits([
     'quick-view'
 ]);
 
-// Reactive state
+/**
+ * Reactive 
+ * 
+ */
 const isWishlisted = ref(false);
 const isAddingToCart = ref(false);
 const showFullDescription = ref(false);
 
-// Computed properties
+/**
+ * Format Price
+ * 
+ * Computed Price
+ * 
+ */
 const formattedPrice = computed(() => {
     if (typeof props.product.price !== 'number') {
         return '$0.00';
@@ -203,6 +219,10 @@ const formattedPrice = computed(() => {
     }).format(props.product.price);
 });
 
+/**
+ * Truncated Description
+ * 
+ */
 const truncatedDescription = computed(() => {
     if (!props.product.description) return '';
     if (showFullDescription.value || props.product.description.length <= 100) {
@@ -211,7 +231,12 @@ const truncatedDescription = computed(() => {
     return props.product.description.substring(0, 100) + '...';
 });
 
-// Methods
+/**
+ * Format Price
+ * 
+ * @param price 
+ * 
+ */
 const formatPrice = (price) => {
     return new Intl.NumberFormat('en-US', {
         style: 'currency',
@@ -219,6 +244,10 @@ const formatPrice = (price) => {
     }).format(price);
 };
 
+/**
+ * Handle Card Click
+ * 
+ */
 const handleCardClick = () => {
     emit('click', props.product);
 };
@@ -234,6 +263,10 @@ const handleAddToCart = async () => {
     }
 };
 
+/**
+ * Toggle Wishlist
+ * 
+ */
 const toggleWishlist = () => {
     isWishlisted.value = !isWishlisted.value;
     emit('toggle-wishlist', {
@@ -242,6 +275,12 @@ const toggleWishlist = () => {
     });
 };
 
+/**
+ * Handle Quick View
+ * 
+ * @param product 
+ * 
+ */
 const handleQuickView = () => {
     emit('quick-view', props.product);
 };

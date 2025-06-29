@@ -42,16 +42,28 @@
 import { Link, useForm } from '@inertiajs/vue3';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 
+/**
+ * Props Define Object
+ * 
+ */
 const props = defineProps({
     product: Object,
 });
 
+/**
+ * Use Form Object
+ * 
+ */
 const form = useForm({
     name: props.product.name,
     price: props.product.price,
     description: props.product.description,
 });
 
+/**
+ * Handle submits
+ * 
+ */
 const submit = () => {
     form.put(route('products.update', props.product.id));
 };

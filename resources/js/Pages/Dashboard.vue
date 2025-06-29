@@ -103,7 +103,10 @@ ChartJS.register(Title, Tooltip, Legend, BarElement, CategoryScale, LinearScale,
 
 const isLoading = ref(true);
 
-// --- Enhanced Palette & Styles ---
+/**
+ * Palette Color Scheme
+ * 
+ */
 const palette = {
     background: '#F9FAFB', // Slightly off-white for a softer feel
     cardBackground: '#FFFFFF',
@@ -115,6 +118,10 @@ const palette = {
     iconGradient: 'linear-gradient(135deg, #E5E7EB 0%, #F9FAFB 100%)', // Gradient for icons
 };
 
+/**
+ * Reactive Styles Object
+ * 
+ */
 const styles = reactive({
     container: { backgroundColor: palette.background },
     header: { color: palette.textPrimary },
@@ -136,6 +143,10 @@ const styles = reactive({
     },
 });
 
+/**
+ * Stats Cards Data
+ * 
+ */
 const statsCards = ref([
     { title: 'Total Sales', value: '$24,850', icon: 'mdi-chart-line' },
     { title: 'New Orders', value: '356', icon: 'mdi-package-variant-closed' },
@@ -143,7 +154,10 @@ const statsCards = ref([
     { title: 'Support Tickets', value: '12', icon: 'mdi-lifebuoy' },
 ]);
 
-// --- Enhanced Chart Configurations ---
+/**
+ * Chart Options Object
+ * 
+ */
 const chartOptions = {
     responsive: true,
     maintainAspectRatio: false,
@@ -156,13 +170,21 @@ const chartOptions = {
     },
 };
 
-// Specific options for the doughnut chart for a better hover effect
+/**
+ * Doughnut Chart Options
+ * 
+ *
+ */
 const doughnutChartOptions = {
     ...chartOptions,
     scales: { y: { display: false }, x: { display: false } }, // No scales on doughnut
     cutout: '60%', // Makes the donut thinner and more modern
 };
 
+/**
+ * Bar Chart Data
+ * 
+ */
 const barChartData = {
     labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul'],
     datasets: [{
@@ -175,7 +197,10 @@ const barChartData = {
     }],
 };
 
-// Area/Line chart data now uses a computed property to create a gradient fill
+/**
+ * Computed Area Line Chart Data
+ * 
+ */
 const areaLineChartData = computed(() => {
     // This trick allows us to use the canvas context to create a gradient
     const chartContext = document.createElement('canvas').getContext('2d');
@@ -201,6 +226,10 @@ const areaLineChartData = computed(() => {
     };
 });
 
+/**
+ * Doughnut Chart Data
+ * 
+ */
 const doughnutChartData = {
     labels: ['Electronics', 'Fashion', 'Home Goods', 'Groceries'],
     datasets: [{
@@ -211,6 +240,10 @@ const doughnutChartData = {
     }],
 };
 
+/**
+ * Life Cycle Hook
+ * 
+ */
 onMounted(() => {
     setTimeout(() => {
         isLoading.value = false;
