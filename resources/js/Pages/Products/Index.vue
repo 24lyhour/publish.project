@@ -13,11 +13,10 @@
                             <p class="text-subtitle-1 text-grey-darken-1">Manage your product inventory</p>
                         </div>
                     </div>
-                    <Link :href="route('products.create')">
+                    <Link class="router-link-active" :href="route('products.create')">
                     <v-btn color="black" size="large" variant="elevated" prepend-icon="mdi-plus"
-                        class="elevation-4 text-white">
-                        Create Product
-                    </v-btn>
+                        class="create-btn elevation-4 text-black bg-white" style="border: 2px solid black;">
+                        Create Product </v-btn>
                     </Link>
                 </div>
 
@@ -331,12 +330,20 @@ import { ref, computed, watch } from 'vue';
 import { Link, useForm, router } from '@inertiajs/vue3';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 
-// Props
+/**
+ * Define Props
+ * 
+ * 
+ */
 const props = defineProps({
     products: Object,
 });
 
-// Reactive State
+/**
+ * Reactive Variables
+ * 
+ * 
+ */
 const searchQuery = ref('');
 const priceFilter = ref(null);
 const sortBy = ref('name');
@@ -347,7 +354,11 @@ const deleteLoading = ref(false);
 const tableDensity = ref('comfortable');
 const showAdvancedView = ref(false);
 
-// Configuration Options
+/**
+ * Configuration Options
+ * 
+ * 
+ */
 const itemsPerPageOptions = [{ value: 5, title: '5' }, { value: 10, title: '10' }, { value: 25, title: '25' }, { value: 50, title: '50' }, { value: -1, title: 'All' }];
 const densityOptions = [{ title: 'Compact', value: 'compact' }, { title: 'Comfortable', value: 'comfortable' }, { title: 'Default', value: 'default' }];
 const priceRanges = [{ title: 'Under $10', value: 'under-10' }, { title: '$10 - $50', value: '10-50' }, { title: '$50 - $100', value: '50-100' }, { title: '$100 - $500', value: '100-500' }, { title: 'Over $500', value: 'over-500' },];
@@ -356,15 +367,26 @@ const basicHeaders = [{ title: 'Product', key: 'product', align: 'start', sortab
 const advancedHeaders = [{ title: 'Product', key: 'product', align: 'start', sortable: true, width: '30%' }, { title: 'Price', key: 'price', align: 'center', sortable: true, width: '10%' }, { title: 'Description', key: 'description', align: 'start', sortable: false, width: '25%' }, { title: 'Stock', key: 'stock_status', align: 'center', sortable: true, width: '10%' }, { title: 'Category', key: 'category', align: 'center', sortable: true, width: '10%' }, { title: 'Actions', key: 'actions', sortable: false, align: 'center', width: '15%' },];
 const tableSortBy = ref([{ key: 'name', order: 'asc' }]);
 
-// Modal States
+/**
+ * Modal method
+ * 
+ */
 const isEditModalOpen = ref(false);
 const isDeleteModalOpen = ref(false);
 const productToDelete = ref(null);
 
-// Edit Form
+/**
+ * Use Form
+ * 
+ * 
+ */
 const editForm = useForm({ id: null, name: '', price: '', description: '', image_url: '', });
 
-// Computed Properties for Stats & Filtering
+/**
+ * Computed Properties for Stats & Filtering
+ * 
+ * 
+ */
 const currentHeaders = computed(() => showAdvancedView.value ? advancedHeaders : basicHeaders);
 const totalProducts = computed(() => props.products.data?.length || 0);
 const averagePrice = computed(() => { if (!totalProducts.value) return '0.00'; const total = props.products.data.reduce((sum, p) => sum + parseFloat(p.price), 0); return (total / totalProducts.value).toFixed(2); });
@@ -386,8 +408,11 @@ const filteredProducts = computed(() => {
     });
 });
 
-// --- REFINED DENSITY-AWARE COMPUTED PROPERTIES ---
-
+/**
+ * Table Height
+ * 
+ * 
+ */
 const tableHeight = computed(() => {
     switch (tableDensity.value) {
         case 'compact': return '450px';
@@ -396,6 +421,11 @@ const tableHeight = computed(() => {
     }
 });
 
+/**
+ * Get Product Cell Class
+ * 
+ * 
+ */
 const getProductCellClass = computed(() => {
     // Controls the vertical padding of the product cell
     switch (tableDensity.value) {
@@ -405,6 +435,12 @@ const getProductCellClass = computed(() => {
     }
 });
 
+/**
+ * Get Avatar Size
+ * 
+ * 
+ * 
+ */
 const getAvatarSize = computed(() => {
     switch (tableDensity.value) {
         case 'compact': return 32;
@@ -413,6 +449,12 @@ const getAvatarSize = computed(() => {
     }
 });
 
+/**
+ * 
+ * Get Product Name Class
+ * 
+ * 
+ */
 const getProductNameClass = computed(() => {
     // Controls the font size and weight of the product name
     switch (tableDensity.value) {
@@ -422,8 +464,16 @@ const getProductNameClass = computed(() => {
     }
 });
 
+/**
+ * Computed Properties for Product Details
+ * 
+ */
 const showProductDetails = computed(() => tableDensity.value !== 'compact');
 
+/**
+ * Get price ship Size & Icon Size
+ * 
+ */
 const getPriceChipSize = computed(() => {
     switch (tableDensity.value) {
         case 'compact': return 'x-small';
@@ -432,6 +482,11 @@ const getPriceChipSize = computed(() => {
     }
 });
 
+/**
+ * Get Price Icon Size
+ * 
+ * 
+ */
 const getPriceIconSize = computed(() => {
     switch (tableDensity.value) {
         case 'compact': return 14;
@@ -440,6 +495,10 @@ const getPriceIconSize = computed(() => {
     }
 });
 
+/**
+ * Get Description Class & Length
+ * 
+ */
 const getDescriptionClass = computed(() => {
     switch (tableDensity.value) {
         case 'compact': return 'text-caption text-grey-darken-1 mb-0';
@@ -447,6 +506,11 @@ const getDescriptionClass = computed(() => {
     }
 });
 
+/**
+ * Get Description Length
+ * 
+ * 
+ */
 const getDescriptionLength = computed(() => {
     switch (tableDensity.value) {
         case 'compact': return 40;
@@ -455,6 +519,11 @@ const getDescriptionLength = computed(() => {
     }
 });
 
+/**
+ * 
+ * Get chip size & Action Button Size
+ * 
+ */
 const getChipSize = computed(() => {
     // For Stock and Category chips
     switch (tableDensity.value) {
@@ -464,6 +533,12 @@ const getChipSize = computed(() => {
     }
 });
 
+/**
+ * Get Action Button Size & Icon Size 
+ * 
+ * Computed
+ * 
+ */
 const getActionButtonSize = computed(() => {
     switch (tableDensity.value) {
         case 'compact': return 'x-small';
@@ -472,6 +547,12 @@ const getActionButtonSize = computed(() => {
     }
 });
 
+/**
+ * Get Action size & Icon Size
+ * 
+ * Computed
+ * 
+ */
 const getActionIconSize = computed(() => {
     switch (tableDensity.value) {
         case 'compact': return 16;
@@ -480,7 +561,11 @@ const getActionIconSize = computed(() => {
     }
 });
 
-// This is the new computed property you requested, pro!
+/**
+ * This is the new computed property you requested, pro!
+ * 
+ * 
+ */
 const getActionClass = computed(() => {
     // Controls the spacing between action buttons
     switch (tableDensity.value) {
@@ -490,7 +575,15 @@ const getActionClass = computed(() => {
     }
 });
 
-// Helper & Event Handler Functions
+
+/**
+ * Helper & Event Handler Functions
+ * 
+ * @param dateString 
+ * @returns 
+ * 
+ * 
+ */
 const formatDate = (dateString) => new Date(dateString).toLocaleDateString();
 const formatPrice = (price) => parseFloat(price).toFixed(2);
 const truncateText = (text, length) => (text && text.length > length) ? text.substring(0, length) + '...' : text;
@@ -500,16 +593,41 @@ const getPriceColor = (price) => {
     if (price > 10) return 'primary';
     return 'success';
 };
+
+/**
+ * Get stock status 
+ * 
+ * @param stock 
+ * @returns 
+ * 
+ * 
+ */
 const getStockStatus = (stock) => {
     if (stock <= 0) return 'Out of Stock';
     if (stock < 10) return 'Low Stock';
     return 'In Stock';
 };
+
+/**
+ * 
+ * Get Stock Color
+ * 
+ * @param stock 
+ * @returns 
+ * 
+ * 
+ */
 const getStockColor = (stock) => {
     if (stock <= 0) return 'error';
     if (stock < 10) return 'warning';
     return 'success';
 };
+
+/**
+ * View emit product
+ * 
+ * 
+ */
 const clearFilters = () => { searchQuery.value = ''; priceFilter.value = null; sortBy.value = 'name'; sortDesc.value = false; };
 const viewProduct = (product) => router.get(route('products.show', product.id));
 const openEditModal = (product) => {
@@ -521,6 +639,12 @@ const openEditModal = (product) => {
     editForm.image_url = product.image_url;
     isEditModalOpen.value = true;
 };
+
+/**
+ * Close Emit modal 
+ * 
+ * 
+ */
 const closeEditModal = () => { isEditModalOpen.value = false; editForm.reset(); };
 const submitEdit = () => {
     editForm.put(route('products.update', editForm.id), {
@@ -528,6 +652,15 @@ const submitEdit = () => {
         onSuccess: () => closeEditModal(),
     });
 };
+
+/**
+ * Handle delete modal
+ * 
+ * @param product 
+ * @returns 
+ * 
+ * 
+ */
 const openDeleteModal = (product) => { productToDelete.value = product; isDeleteModalOpen.value = true; };
 const closeDeleteModal = () => { isDeleteModalOpen.value = false; productToDelete.value = null; };
 const submitDelete = () => {
@@ -551,5 +684,10 @@ const submitDelete = () => {
 .gap-2 {
     gap: 0.5rem;
     /* 8px */
+}
+
+.v-btn {
+    border-radius: 20px;
+    padding: 5px 10px;
 }
 </style>
