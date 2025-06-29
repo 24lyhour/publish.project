@@ -9,6 +9,9 @@ class MenuServiceProvider extends ServiceProvider
 {
     /**
      * Register services.
+     * 
+     * @return void
+     * 
      */
     public function register(): void
     {
