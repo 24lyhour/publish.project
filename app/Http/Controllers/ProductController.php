@@ -79,7 +79,7 @@ class ProductController extends Controller
     {
         $product = Product::create($request->validated());
 
-        return redirect()->route('products.index')
+        return redirect()->route('dashboard.products.index')
             ->with('success', 'Product created successfully.');
     }
 
@@ -137,7 +137,7 @@ class ProductController extends Controller
     {
         $product->update($request->validated());
 
-        return redirect()->route('products.index')
+        return redirect()->route('dashboard.products.index')
             ->with('success', 'Product updated successfully.');
     }
 
@@ -169,7 +169,41 @@ class ProductController extends Controller
     {
         $product->delete();
 
-        return redirect()->route('products.index')
+        return redirect()->route('dashboard.products.index')
             ->with('success', 'Product deleted successfully.');
+    }
+
+    /**
+     * Show create product modal
+     * 
+     * @return Response
+     */
+    public function createModal()
+    {
+        return Inertia::modal('Modals/ProductFormModal')
+            ->with([
+                'mode' => 'create',
+                'categories' => Category::all(['id', 'name']),
+                'method' => 'post',
+                'action' => route('dashboard.products.store'),
+            ]);
+    }
+
+    /**
+     * Show edit product modal
+     * 
+     * @param Product $product
+     * @return Response
+     */
+    public function editModal(Product $product)
+    {
+        return Inertia::modal('Modals/ProductFormModal')
+            ->with([
+                'mode' => 'edit',
+                'product' => $product,
+                'categories' => Category::all(['id', 'name']),
+                'method' => 'patch',
+                'action' => route('dashboard.products.update', $product),
+            ]);
     }
 }

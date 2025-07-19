@@ -407,7 +407,7 @@ const applyFilters = () => {
         }
     });
 
-    router.get(route('products.index'), filters, {
+    router.get(route('dashboard.products.index'), filters, {
         preserveState: true,
         preserveScroll: true,
     });
@@ -460,7 +460,7 @@ const clearFilters = () => {
     sortBy.value = 'name';
     sortDesc.value = false;
 
-    router.get(route('products.index'), {}, {
+    router.get(route('dashboard.products.index'), {}, {
         preserveState: true,
         preserveScroll: true,
     });
@@ -468,19 +468,19 @@ const clearFilters = () => {
 
 // Event Handlers - Using Inertia modals
 const createProduct = () => {
-    router.get(route('products.create'));
+    router.get(route('dashboard.products.modal.create'));
 };
 
 const viewProduct = (product) => {
-    router.get(route('products.show', product.id));
+    router.get(route('dashboard.products.show', product.id));
 };
 
 const editProduct = (product) => {
-    router.get(route('products.edit', product.id));
+    router.get(route('dashboard.products.modal.edit', product.id));
 };
 
 const deleteProduct = (product) => {
-    router.get(route('products.confirm-delete', product.id));
+    router.get(route('dashboard.products.confirm-delete', product.id));
 };
 </script>
 
