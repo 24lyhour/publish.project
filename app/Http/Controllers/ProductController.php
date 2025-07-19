@@ -45,10 +45,10 @@ class ProductController extends Controller
      */
     public function create()
     {
-        return Inertia::render('Dashboard/Inertia/V1/Products/Create')
+        return Inertia::modal('Dashboard/Inertia/V1/Products/Create')
             ->with([
                 'categories' => Category::all(['id', 'name']),
-            ]);
+            ])->baseRoute('dashboard.dashboard.products.index');
     }
 
     /**
@@ -96,11 +96,11 @@ class ProductController extends Controller
      */
     public function edit(Product $product)
     {
-        return Inertia::render('Dashboard/Inertia/V1/Products/Edit')
+        return Inertia::modal('Dashboard/Inertia/V1/Products/Edit')
             ->with([
                 'product' => ProductTransform::single($product),
                 'categories' => Category::all(['id', 'name']),
-            ]);
+            ])->baseRoute('dashboard.dashboard.products.index');
     }
 
     /**
@@ -131,10 +131,10 @@ class ProductController extends Controller
      */
     public function delete(Product $product)
     {
-        return Inertia::render('Dashboard/Inertia/V1/Products/Delete')
+        return Inertia::modal('Dashboard/Inertia/V1/Products/Delete')
             ->with([
                 'product' => ProductTransform::single($product),
-            ]);
+            ])->baseRoute('dashboard.dashboard.products.index');
     }
 
     /**
