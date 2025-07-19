@@ -25,69 +25,102 @@ Route::middleware(['auth'])->group(function () {
      * 
      * All management routes are prefixed with 'dashboard' for better organization
      * and grouped under auth middleware for security
+     * 
+     * @return Response
+     * 
+     * @throws Exception
+     * @throws ResponseException
+     * 
+     * @see DashboardController
+     * @see ProductController
+     * @see CategoryController
+     * @see RestaurantController
+     * @see MenuController
+     * 
+     * @link App\Http\Controllers\DashboardController
+     * @link App\Http\Controllers\ProductController
+     * @link App\Http\Controllers\CategoryController
+     * @link App\Http\Controllers\RestaurantController
+     * @link App\Http\Controllers\MenuController
      */
     Route::prefix('dashboard')->name('dashboard.')->group(function () {
         
         /**
-         * Product Management
+         * Management Group Routes
+         * Grouped routes for better organization and middleware management
          */
-        Route::resource('products', ProductController::class)->names([
-            'index' => 'products.index',
-            'create' => 'products.create', 
-            'store' => 'products.store',
-            'show' => 'products.show',
-            'edit' => 'products.edit',
-            'update' => 'products.update',
-            'destroy' => 'products.destroy'
-        ]);
+        Route::group(['prefix' => 'management'], function () {
         
-        // Product modal routes
-        Route::get('/products/{product}/delete', [ProductController::class, 'confirmDelete'])
-            ->name('products.confirm-delete');
-        Route::get('/products/modal/create', [ProductController::class, 'createModal'])
-            ->name('products.modal.create');
-        Route::get('/products/{product}/modal/edit', [ProductController::class, 'editModal'])
-            ->name('products.modal.edit');
+            /**
+             * Product Management Group
+             */
+            Route::group(['prefix' => 'products'], function () {
+                Route::resource('/', ProductController::class)->parameters(['' => 'product'])->names([
+                    'index' => 'products.index',
+                    'create' => 'products.create', 
+                    'store' => 'products.store',
+                    'show' => 'products.show',
+                    'edit' => 'products.edit',
+                    'update' => 'products.update',
+                    'destroy' => 'products.destroy'
+                ]);
+                
+                // Product modal routes
+                Route::get('/{product}/delete', [ProductController::class, 'confirmDelete'])
+                    ->name('products.confirm-delete');
+                Route::get('/modal/create', [ProductController::class, 'createModal'])
+                    ->name('products.modal.create');
+                Route::get('/{product}/modal/edit', [ProductController::class, 'editModal'])
+                    ->name('products.modal.edit');
+            });
+            
+            /**
+             * Category Management Group
+             */
+            Route::group(['prefix' => 'categories'], function () {
+                Route::resource('/', CategoryController::class)->parameters(['' => 'category'])->names([
+                    'index' => 'categories.index',
+                    'create' => 'categories.create',
+                    'store' => 'categories.store', 
+                    'show' => 'categories.show',
+                    'edit' => 'categories.edit',
+                    'update' => 'categories.update',
+                    'destroy' => 'categories.destroy'
+                ]);
+            });
+            
+            /**
+             * Restaurant Management Group
+             */
+            Route::group(['prefix' => 'restaurants'], function () {
+                Route::resource('/', RestaurantController::class)->parameters(['' => 'restaurant'])->names([
+                    'index' => 'restaurants.index',
+                    'create' => 'restaurants.create',
+                    'store' => 'restaurants.store',
+                    'show' => 'restaurants.show', 
+                    'edit' => 'restaurants.edit',
+                    'update' => 'restaurants.update',
+                    'destroy' => 'restaurants.destroy'
+                ]);
+            });
+            
+            /**
+             * Menu Management Group
+             */
+            Route::group(['prefix' => 'menus'], function () {
+                Route::resource('/', MenuController::class)->parameters(['' => 'menu'])->names([
+                    'index' => 'menus.index',
+                    'create' => 'menus.create',
+                    'store' => 'menus.store',
+                    'show' => 'menus.show',
+                    'edit' => 'menus.edit', 
+                    'update' => 'menus.update',
+                    'destroy' => 'menus.destroy'
+                ]);
+            });
+            
+        }); // End management group
         
-        /**
-         * Category Management
-         */
-        Route::resource('categories', CategoryController::class)->names([
-            'index' => 'categories.index',
-            'create' => 'categories.create',
-            'store' => 'categories.store', 
-            'show' => 'categories.show',
-            'edit' => 'categories.edit',
-            'update' => 'categories.update',
-            'destroy' => 'categories.destroy'
-        ]);
-        
-        /**
-         * Restaurant Management
-         */
-        Route::resource('restaurants', RestaurantController::class)->names([
-            'index' => 'restaurants.index',
-            'create' => 'restaurants.create',
-            'store' => 'restaurants.store',
-            'show' => 'restaurants.show', 
-            'edit' => 'restaurants.edit',
-            'update' => 'restaurants.update',
-            'destroy' => 'restaurants.destroy'
-        ]);
-        
-        /**
-         * Menu Management
-         */
-        Route::resource('menus', MenuController::class)->names([
-            'index' => 'menus.index',
-            'create' => 'menus.create',
-            'store' => 'menus.store',
-            'show' => 'menus.show',
-            'edit' => 'menus.edit', 
-            'update' => 'menus.update',
-            'destroy' => 'menus.destroy'
-        ]);
-        
-    });
+    }); // End dashboard prefix group
     
 });

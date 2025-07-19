@@ -63,7 +63,7 @@ class ProductController extends Controller
      */
     public function create()
     {
-        return Inertia::modal('Products/Modals/CreateProduct')
+        return Inertia::modal('Dashboard/Inertia/V1/Modals/FormSakal/ProductFormModal')
             ->with([
                 'categories' => Category::all(['id', 'name']),
             ]);
@@ -114,7 +114,7 @@ class ProductController extends Controller
      */
     public function edit(Product $product)
     {
-        return Inertia::modal('Products/Modals/EditProduct')
+        return Inertia::modal('Dashboard/Inertia/V1/Modals/FormSakal/ProductFormModal')
             ->with([
                 'product' => $product,
                 'categories' => Category::all(['id', 'name']),
@@ -149,7 +149,7 @@ class ProductController extends Controller
      */
     public function confirmDelete(Product $product)
     {
-        return Inertia::modal('Products/Modals/DeleteProduct')
+        return Inertia::modal('Dashboard/Inertia/V1/Modals/FormSakal/SakalModal')
             ->with([
                 'product' => $product,
             ]);
@@ -180,7 +180,7 @@ class ProductController extends Controller
      */
     public function createModal()
     {
-        return Inertia::modal('Modals/ProductFormModal')
+        return Inertia::modal('Dashboard/Inertia/V1/Modals/FormSakal/ProductFormModal')
             ->with([
                 'mode' => 'create',
                 'categories' => Category::all(['id', 'name']),
@@ -197,7 +197,7 @@ class ProductController extends Controller
      */
     public function editModal(Product $product)
     {
-        return Inertia::modal('Modals/ProductFormModal')
+        return Inertia::modal('Dashboard/Inertia/V1/Modals/FormSakal/ProductFormModal')
             ->with([
                 'mode' => 'edit',
                 'product' => $product,
