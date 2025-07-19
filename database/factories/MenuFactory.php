@@ -5,9 +5,9 @@ namespace Database\Factories;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Product>
+ * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Menu>
  */
-class ProductFactory extends Factory
+class MenuFactory extends Factory
 {
     /**
      * Define the model's default state.
@@ -17,10 +17,11 @@ class ProductFactory extends Factory
     public function definition(): array
     {
         return [
-            'name' => fake()->words(3, true),
-            'description' => fake()->paragraph(),
-            'price' => fake()->randomFloat(2, 10, 1000),
+            'menu_name' => fake()->words(3, true),
             'category_id' => \App\Models\Category::inRandomOrder()->first()?->id ?? \App\Models\Category::factory()->create()->id,
+            'restaurant_id' => \App\Models\Restaurant::inRandomOrder()->first()?->id ?? \App\Models\Restaurant::factory()->create()->id,
+            'price' => fake()->randomFloat(2, 5, 100),
+            'description' => fake()->sentence(),
         ];
     }
 }

@@ -84,9 +84,17 @@ class HandleInertiaRequests extends Middleware
             ['style' => ['color' => 'black', 'marginTop' => '10px']]
         );
 
-        // // Example: Add submenu under Products if needed
-        // app(MenuService::class)->addSubmenuItem('main', 'Products', 'Product List', route('products.index'), 'mdi-package', 1, 'VIEW_PRODUCTS');
+        // app(MenuService::class)->addSubmenuItem(
+        //     'main',
+        //     'products',
+        //     'Create Product',
+        //     '',
+        //     'mdi-plus',
+        //     1,
+        //     'CREATE_PRODUCT'
+        // );
 
+        
         return parent::handle($request, $next);
     }
 }

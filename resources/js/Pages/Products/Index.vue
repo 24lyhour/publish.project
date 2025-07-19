@@ -1,25 +1,25 @@
 <template>
     <AuthenticatedLayout title="Products">
         <v-container class="pa-6" fluid>
-            <!-- Hero Header Section (No changes here) -->
-            <div class="mb-8">
+            <!-- Simple Header Section -->
+            <div class="mb-6">
                 <div class="d-flex align-center justify-space-between mb-4">
                     <div class="d-flex align-center">
-                        <v-avatar class="me-4 bg-black" size="48">
-                            <v-icon icon="mdi-package-variant-closed" size="24" color="white"></v-icon>
-                        </v-avatar>
+                        <v-icon icon="mdi-package-variant-closed" size="32" color="primary" class="me-3"></v-icon>
                         <div>
-                            <h1 class="text-h3 font-weight-bold text-black mb-1">Products</h1>
+                            <h1 class="text-h4 font-weight-bold mb-1">Products</h1>
                             <p class="text-subtitle-1 text-grey-darken-1">Manage your product inventory</p>
                         </div>
                     </div>
-                    <Link class="router-link-active" :href="route('products.create')">
-                    <v-btn color="black" size="large" variant="elevated" prepend-icon="mdi-plus"
-                        class="create-btn elevation-4 text-black bg-white" style="border: 2px solid black;">
-                        Create Product </v-btn>
+                    <Link :href="route('products.create')">
+                    <v-btn color="primary" size="large" variant="flat" prepend-icon="mdi-plus">
+                        Create Product
+                    </v-btn>
                     </Link>
                 </div>
+            </div>
 
+            <div>
                 <!-- Success/Error Messages (No changes here) -->
                 <v-expand-transition>
                     <v-alert v-if="$page.props.flash.success" color="success" variant="elevated" prominent closable
@@ -52,105 +52,180 @@
                 </v-expand-transition>
             </div>
 
-            <!-- Advanced Filters & Density Controls (No changes here) -->
-            <v-card class="mb-6 elevation-2" rounded="lg">
-                <v-card-title class="d-flex align-center bg-black text-white">
-                    <v-icon icon="mdi-filter-variant" class="me-2" color="white"></v-icon>
-                    Advanced Filters & Display Settings
-                    <v-spacer></v-spacer>
-                    <v-btn icon="mdi-refresh" variant="text" size="small" @click="clearFilters" class="text-white">
-                        <v-tooltip activator="parent">Clear All Filters</v-tooltip>
-                    </v-btn>
-                </v-card-title>
-                <v-card-text class="pa-4">
-                    <v-row>
-                        <v-col cols="12" md="3">
-                            <v-text-field v-model="searchQuery" label="Search products..."
-                                prepend-inner-icon="mdi-magnify" variant="outlined" density="comfortable" clearable
-                                hide-details></v-text-field>
-                        </v-col>
-                        <v-col cols="12" md="2">
-                            <v-select v-model="priceFilter" :items="priceRanges" label="Price Range"
-                                prepend-inner-icon="mdi-currency-usd" variant="outlined" density="comfortable" clearable
-                                hide-details></v-select>
-                        </v-col>
-                        <v-col cols="12" md="2">
-                            <v-select v-model="sortBy" :items="sortOptions" label="Sort by"
-                                prepend-inner-icon="mdi-sort" variant="outlined" density="comfortable"
-                                hide-details></v-select>
-                        </v-col>
-                        <v-col cols="12" md="2">
-                            <v-select v-model="tableDensity" :items="densityOptions" label="Table Density"
-                                prepend-inner-icon="mdi-table-row-height" variant="outlined" density="comfortable"
-                                hide-details></v-select>
-                        </v-col>
-                        <v-col cols="12" md="" class="d-flex align-center">
-                            <v-switch v-model="sortDesc" label="Descending" color="primary" hide-details
-                                density="comfortable"></v-switch>
-                        </v-col>
-                        <v-col cols="12" md="" class="d-flex align-center">
-                            <v-switch v-model="showAdvancedView" label="Advance" color="black" hide-details
-                                density="comfortable"></v-switch>
-                        </v-col>
-                    </v-row>
-                </v-card-text>
-            </v-card>
-
-            <!-- Products Statistics Cards (No changes here) -->
+            <!-- Statistics Cards with Skeleton Loading -->
             <v-row class="mb-6">
                 <v-col cols="12" md="3">
-                    <v-card class="elevation-2" rounded="lg" hover>
+                    <v-card class="elevation-0" rounded="lg">
                         <v-card-text class="text-center pa-4">
-                            <v-icon size="32" color="primary" class="mb-2">mdi-package-variant</v-icon>
-                            <div class="text-h4 font-weight-bold text-black">{{ totalProducts }}</div>
-                            <div class="text-caption text-grey-darken-1">Total Products</div>
+                            <template v-if="loading">
+                                <v-skeleton-loader type="avatar" class="mb-2"></v-skeleton-loader>
+                                <v-skeleton-loader type="text" class="mb-1"></v-skeleton-loader>
+                                <v-skeleton-loader type="text" width="60%"></v-skeleton-loader>
+                            </template>
+                            <template v-else>
+                                <v-icon size="28" color="primary" class="mb-2">mdi-package-variant</v-icon>
+                                <div class="text-h5 font-weight-bold text-primary">{{ totalProducts }}</div>
+                                <div class="text-body-2 text-grey-darken-1">Total Products</div>
+                            </template>
                         </v-card-text>
                     </v-card>
                 </v-col>
                 <v-col cols="12" md="3">
-                    <v-card class="elevation-2" rounded="lg" hover>
+                    <v-card class="elevation-0" rounded="lg">
                         <v-card-text class="text-center pa-4">
-                            <v-icon size="32" color="success" class="mb-2">mdi-currency-usd</v-icon>
-                            <div class="text-h4 font-weight-bold text-black">${{ averagePrice }}</div>
-                            <div class="text-caption text-grey-darken-1">Average Price</div>
+                            <template v-if="loading">
+                                <v-skeleton-loader type="avatar" class="mb-2"></v-skeleton-loader>
+                                <v-skeleton-loader type="text" class="mb-1"></v-skeleton-loader>
+                                <v-skeleton-loader type="text" width="60%"></v-skeleton-loader>
+                            </template>
+                            <template v-else>
+                                <v-icon size="28" color="success" class="mb-2">mdi-currency-usd</v-icon>
+                                <div class="text-h5 font-weight-bold text-success">${{ averagePrice }}</div>
+                                <div class="text-body-2 text-grey-darken-1">Average Price</div>
+                            </template>
                         </v-card-text>
                     </v-card>
                 </v-col>
                 <v-col cols="12" md="3">
-                    <v-card class="elevation-2" rounded="lg" hover>
+                    <v-card class="elevation-0" rounded="lg">
                         <v-card-text class="text-center pa-4">
-                            <v-icon size="32" color="warning" class="mb-2">mdi-trending-up</v-icon>
-                            <div class="text-h4 font-weight-bold text-black">${{ highestPrice }}</div>
-                            <div class="text-caption text-grey-darken-1">Highest Price</div>
+                            <template v-if="loading">
+                                <v-skeleton-loader type="avatar" class="mb-2"></v-skeleton-loader>
+                                <v-skeleton-loader type="text" class="mb-1"></v-skeleton-loader>
+                                <v-skeleton-loader type="text" width="60%"></v-skeleton-loader>
+                            </template>
+                            <template v-else>
+                                <v-icon size="28" color="warning" class="mb-2">mdi-trending-up</v-icon>
+                                <div class="text-h5 font-weight-bold text-warning">${{ highestPrice }}</div>
+                                <div class="text-body-2 text-grey-darken-1">Highest Price</div>
+                            </template>
                         </v-card-text>
                     </v-card>
                 </v-col>
                 <v-col cols="12" md="3">
-                    <v-card class="elevation-2" rounded="lg" hover>
+                    <v-card class="elevation-0" rounded="lg">
                         <v-card-text class="text-center pa-4">
-                            <v-icon size="32" color="info" class="mb-2">mdi-trending-down</v-icon>
-                            <div class="text-h4 font-weight-bold text-black">${{ lowestPrice }}</div>
-                            <div class="text-caption text-grey-darken-1">Lowest Price</div>
+                            <template v-if="loading">
+                                <v-skeleton-loader type="avatar" class="mb-2"></v-skeleton-loader>
+                                <v-skeleton-loader type="text" class="mb-1"></v-skeleton-loader>
+                                <v-skeleton-loader type="text" width="60%"></v-skeleton-loader>
+                            </template>
+                            <template v-else>
+                                <v-icon size="28" color="info" class="mb-2">mdi-trending-down</v-icon>
+                                <div class="text-h5 font-weight-bold text-info">${{ lowestPrice }}</div>
+                                <div class="text-body-2 text-grey-darken-1">Lowest Price</div>
+                            </template>
                         </v-card-text>
                     </v-card>
                 </v-col>
             </v-row>
 
-            <!-- START OF MODIFIED SECTION -->
-            <v-card class="elevation-4" rounded="lg">
+            <!-- Cool Filters Layout -->
+            <v-card class="mb-6 elevation-0 filters-card" rounded="lg">
+                <v-card-title class="d-flex align-center pa-4 bg-grey-lighten-5">
+                    <v-icon icon="mdi-filter-variant" class="me-2" color="primary"></v-icon>
+                    <span class="text-h6 font-weight-bold">Filters</span>
+                    <v-spacer></v-spacer>
+                    <v-btn icon="mdi-refresh" variant="text" size="small" @click="clearFilters" color="primary">
+                        <v-tooltip activator="parent">Clear All Filters</v-tooltip>
+                    </v-btn>
+                </v-card-title>
+                <v-card-text class="pa-4">
+                    <template v-if="loading">
+                        <v-row>
+                            <v-col cols="12" md="3">
+                                <v-skeleton-loader type="text-field"></v-skeleton-loader>
+                            </v-col>
+                            <v-col cols="12" md="2">
+                                <v-skeleton-loader type="text-field"></v-skeleton-loader>
+                            </v-col>
+                            <v-col cols="12" md="2">
+                                <v-skeleton-loader type="text-field"></v-skeleton-loader>
+                            </v-col>
+                            <v-col cols="12" md="2">
+                                <v-skeleton-loader type="text-field"></v-skeleton-loader>
+                            </v-col>
+                            <v-col cols="12" md="2">
+                                <v-skeleton-loader type="text-field"></v-skeleton-loader>
+                            </v-col>
+                            <v-col cols="12" md="1">
+                                <v-skeleton-loader type="text-field"></v-skeleton-loader>
+                            </v-col>
+                        </v-row>
+                    </template>
+                    <template v-else>
+                        <v-row class="filter-row">
+                            <v-col cols="12" md="3">
+                                <v-text-field v-model="searchQuery" label="Search products..."
+                                    prepend-inner-icon="mdi-magnify" variant="outlined" density="comfortable" clearable
+                                    hide-details class="filter-input"></v-text-field>
+                            </v-col>
+                            <v-col cols="12" md="2">
+                                <v-select v-model="categoryFilter" :items="categoryOptions" label="Category"
+                                    prepend-inner-icon="mdi-tag" variant="outlined" density="comfortable" clearable
+                                    hide-details class="filter-input"></v-select>
+                            </v-col>
+                            <v-col cols="12" md="2">
+                                <v-select v-model="priceFilter" :items="priceRanges" label="Price Range"
+                                    prepend-inner-icon="mdi-currency-usd" variant="outlined" density="comfortable" clearable
+                                    hide-details class="filter-input"></v-select>
+                            </v-col>
+                            <v-col cols="12" md="2">
+                                <v-select v-model="statusFilter" :items="statusOptions" label="Status"
+                                    prepend-inner-icon="mdi-check-circle" variant="outlined" density="comfortable" clearable
+                                    hide-details class="filter-input"></v-select>
+                            </v-col>
+                            <v-col cols="12" md="2">
+                                <v-select v-model="sortBy" :items="sortOptions" label="Sort by"
+                                    prepend-inner-icon="mdi-sort" variant="outlined" density="comfortable"
+                                    hide-details class="filter-input"></v-select>
+                            </v-col>
+                            <v-col cols="12" md="1">
+                                <v-btn-toggle v-model="sortDesc" variant="outlined" density="comfortable" class="sort-toggle">
+                                    <v-btn :value="false" icon="mdi-sort-ascending" size="small">
+                                        <v-tooltip activator="parent">Ascending</v-tooltip>
+                                    </v-btn>
+                                    <v-btn :value="true" icon="mdi-sort-descending" size="small">
+                                        <v-tooltip activator="parent">Descending</v-tooltip>
+                                    </v-btn>
+                                </v-btn-toggle>
+                            </v-col>
+                        </v-row>
+                    </template>
+                </v-card-text>
+            </v-card>
+
+            <!-- Cool Products Table -->
+            <v-card class="elevation-0 table-card" rounded="lg">
                 <v-card-title class="d-flex align-center justify-space-between pa-4 bg-grey-lighten-5">
                     <div class="d-flex align-center">
-                        <v-icon icon="mdi-table" class="me-2"></v-icon>
+                        <v-icon icon="mdi-table" class="me-2" color="primary"></v-icon>
                         <span class="text-h6 font-weight-bold">Products Table</span>
-                        <v-chip class="ml-4" color="primary" size="small">
-                            {{ filteredProducts.length }} items
-                        </v-chip>
+                        <template v-if="loading">
+                            <v-skeleton-loader type="chip" class="ml-4" width="80px"></v-skeleton-loader>
+                        </template>
+                        <template v-else>
+                            <v-chip class="ml-4" color="primary" size="small" variant="flat">
+                                {{ filteredProducts.length }} items
+                            </v-chip>
+                        </template>
                     </div>
+                    <v-btn-toggle v-model="tableDensity" variant="outlined" size="small" class="density-toggle">
+                        <v-btn value="compact" icon="mdi-view-compact" size="small">
+                            <v-tooltip activator="parent">Compact</v-tooltip>
+                        </v-btn>
+                        <v-btn value="comfortable" icon="mdi-view-comfortable" size="small">
+                            <v-tooltip activator="parent">Comfortable</v-tooltip>
+                        </v-btn>
+                        <v-btn value="default" icon="mdi-view-module" size="small">
+                            <v-tooltip activator="parent">Default</v-tooltip>
+                        </v-btn>
+                    </v-btn-toggle>
                 </v-card-title>
 
-                <v-data-table v-model:search="searchQuery" v-model:sort-by="tableSortBy" :headers="currentHeaders"
+                <v-data-table v-model:search="searchQuery" v-model:sort-by="tableSortBy" :headers="headers"
                     :items="filteredProducts" :items-per-page="itemsPerPage" :loading="loading" :density="tableDensity"
-                    :items-per-page-options="itemsPerPageOptions" class="elevation-0" hover fixed-header
+                    :items-per-page-options="itemsPerPageOptions" class="elevation-0" hover
                     :height="tableHeight">
 
                     <template #loading>
@@ -159,9 +234,9 @@
 
                     <template #item.product="{ item }">
                         <div class="d-flex align-center" :class="getProductCellClass">
-                            <v-avatar :image="item.image_url || undefined" :size="getAvatarSize"
-                                class="me-3 elevation-1" rounded="lg">
-                                <v-icon v-if="!item.image_url" icon="mdi-package-variant" color="grey"></v-icon>
+                            <v-avatar :image="item.imageUrl || undefined" :size="getAvatarSize" class="me-3 elevation-1"
+                                rounded="lg">
+                                <v-icon v-if="!item.imageUrl" icon="mdi-package-variant" color="grey"></v-icon>
                             </v-avatar>
                             <div>
                                 <div :class="getProductNameClass">{{ item.name }}</div>
@@ -193,15 +268,15 @@
                     </template>
 
                     <template #item.stock_status="{ item }">
-                        <v-chip :color="getStockColor(item.stock || 0)" variant="tonal" :size="getChipSize"
+                        <v-chip :color="getStockColor(item.quantity || 0)" variant="tonal" :size="getChipSize"
                             class="font-weight-medium">
-                            {{ getStockStatus(item.stock || 0) }}
+                            {{ getStockStatus(item.quantity || 0) }}
                         </v-chip>
                     </template>
 
                     <template #item.category="{ item }">
                         <v-chip color="blue-grey" variant="flat" :size="getChipSize" class="text-white">
-                            {{ item.category || 'N/A' }}
+                            {{ item.category || 'No Category' }}
                         </v-chip>
                     </template>
 
@@ -337,6 +412,8 @@ import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
  */
 const props = defineProps({
     products: Object,
+    categories: Array,
+    filters: Object,
 });
 
 /**
@@ -344,15 +421,16 @@ const props = defineProps({
  * 
  * 
  */
-const searchQuery = ref('');
-const priceFilter = ref(null);
-const sortBy = ref('name');
-const sortDesc = ref(false);
+const searchQuery = ref(props.filters?.search || '');
+const priceFilter = ref(props.filters?.price_range || null);
+const categoryFilter = ref(props.filters?.category_id || null);
+const statusFilter = ref(props.filters?.status || null);
+const sortBy = ref(props.filters?.sort || 'name');
+const sortDesc = ref(props.filters?.direction === 'desc');
 const itemsPerPage = ref(10);
 const loading = ref(false);
 const deleteLoading = ref(false);
 const tableDensity = ref('comfortable');
-const showAdvancedView = ref(false);
 
 /**
  * Configuration Options
@@ -360,11 +438,15 @@ const showAdvancedView = ref(false);
  * 
  */
 const itemsPerPageOptions = [{ value: 5, title: '5' }, { value: 10, title: '10' }, { value: 25, title: '25' }, { value: 50, title: '50' }, { value: -1, title: 'All' }];
-const densityOptions = [{ title: 'Compact', value: 'compact' }, { title: 'Comfortable', value: 'comfortable' }, { title: 'Default', value: 'default' }];
+// Remove densityOptions since we're using button toggle now
 const priceRanges = [{ title: 'Under $10', value: 'under-10' }, { title: '$10 - $50', value: '10-50' }, { title: '$50 - $100', value: '50-100' }, { title: '$100 - $500', value: '100-500' }, { title: 'Over $500', value: 'over-500' },];
 const sortOptions = [{ title: 'Name', value: 'name' }, { title: 'Price', value: 'price' }, { title: 'Date Created', value: 'created_at' },];
-const basicHeaders = [{ title: 'Product', key: 'product', align: 'start', sortable: true, width: '35%' }, { title: 'Price', key: 'price', align: 'center', sortable: true, width: '15%' }, { title: 'Description', key: 'description', align: 'start', sortable: false, width: '35%' }, { title: 'Actions', key: 'actions', sortable: false, align: 'center', width: '15%' },];
-const advancedHeaders = [{ title: 'Product', key: 'product', align: 'start', sortable: true, width: '30%' }, { title: 'Price', key: 'price', align: 'center', sortable: true, width: '10%' }, { title: 'Description', key: 'description', align: 'start', sortable: false, width: '25%' }, { title: 'Stock', key: 'stock_status', align: 'center', sortable: true, width: '10%' }, { title: 'Category', key: 'category', align: 'center', sortable: true, width: '10%' }, { title: 'Actions', key: 'actions', sortable: false, align: 'center', width: '15%' },];
+const statusOptions = [{ title: 'Active', value: 'active' }, { title: 'Inactive', value: 'inactive' },];
+const categoryOptions = computed(() => {
+    if (!props.categories) return [];
+    return props.categories.map(cat => ({ title: cat.name, value: cat.id }));
+});
+const headers = [{ title: 'Product', key: 'product', align: 'start', sortable: true, width: '30%' }, { title: 'Price', key: 'price', align: 'center', sortable: true, width: '10%' }, { title: 'Description', key: 'description', align: 'start', sortable: false, width: '25%' }, { title: 'Stock', key: 'stock_status', align: 'center', sortable: true, width: '10%' }, { title: 'Category', key: 'category', align: 'center', sortable: true, width: '10%' }, { title: 'Actions', key: 'actions', sortable: false, align: 'center', width: '15%' },];
 const tableSortBy = ref([{ key: 'name', order: 'asc' }]);
 
 /**
@@ -387,25 +469,53 @@ const editForm = useForm({ id: null, name: '', price: '', description: '', image
  * 
  * 
  */
-const currentHeaders = computed(() => showAdvancedView.value ? advancedHeaders : basicHeaders);
+// Remove currentHeaders since we only use one set of headers now
 const totalProducts = computed(() => props.products.data?.length || 0);
 const averagePrice = computed(() => { if (!totalProducts.value) return '0.00'; const total = props.products.data.reduce((sum, p) => sum + parseFloat(p.price), 0); return (total / totalProducts.value).toFixed(2); });
 const highestPrice = computed(() => { if (!totalProducts.value) return '0.00'; return Math.max(...props.products.data.map(p => parseFloat(p.price))).toFixed(2); });
 const lowestPrice = computed(() => { if (!totalProducts.value) return '0.00'; return Math.min(...props.products.data.map(p => parseFloat(p.price))).toFixed(2); });
 const filteredProducts = computed(() => {
-    if (!props.products.data) return [];
-    if (!priceFilter.value) return props.products.data;
-    return props.products.data.filter(p => {
-        const price = parseFloat(p.price);
-        switch (priceFilter.value) {
-            case 'under-10': return price < 10;
-            case '10-50': return price >= 10 && price <= 50;
-            case '50-100': return price >= 50 && price <= 100;
-            case '100-500': return price >= 100 && price <= 500;
-            case 'over-500': return price > 500;
-            default: return true;
+    return props.products.data || [];
+});
+
+// Debounced search function
+const debouncedSearch = ref(null);
+const applyFilters = () => {
+    const filters = {
+        search: searchQuery.value,
+        category_id: categoryFilter.value,
+        price_range: priceFilter.value,
+        status: statusFilter.value,
+        sort: sortBy.value,
+        direction: sortDesc.value ? 'desc' : 'asc',
+    };
+
+    // Remove empty filters
+    Object.keys(filters).forEach(key => {
+        if (!filters[key]) {
+            delete filters[key];
         }
     });
+
+    router.get(route('products.index'), filters, {
+        preserveState: true,
+        preserveScroll: true,
+    });
+};
+
+// Watch for filter changes with loading state
+watch([searchQuery, categoryFilter, priceFilter, statusFilter, sortBy, sortDesc], () => {
+    if (debouncedSearch.value) {
+        clearTimeout(debouncedSearch.value);
+    }
+    
+    loading.value = true;
+    debouncedSearch.value = setTimeout(() => {
+        applyFilters();
+        setTimeout(() => {
+            loading.value = false;
+        }, 500);
+    }, 300);
 });
 
 /**
@@ -628,7 +738,19 @@ const getStockColor = (stock) => {
  * 
  * 
  */
-const clearFilters = () => { searchQuery.value = ''; priceFilter.value = null; sortBy.value = 'name'; sortDesc.value = false; };
+const clearFilters = () => {
+    searchQuery.value = '';
+    priceFilter.value = null;
+    categoryFilter.value = null;
+    statusFilter.value = null;
+    sortBy.value = 'name';
+    sortDesc.value = false;
+
+    router.get(route('products.index'), {}, {
+        preserveState: true,
+        preserveScroll: true,
+    });
+};
 const viewProduct = (product) => router.get(route('products.show', product.id));
 const openEditModal = (product) => {
     editForm.reset();
@@ -675,19 +797,118 @@ const submitDelete = () => {
 </script>
 
 <style scoped>
-/* A simple CSS helper for gap spacing, as Vuetify 3's gap classes can be limited */
+/* Cool, smooth styles with no shadows */
+.v-btn {
+    border-radius: 8px !important;
+    text-transform: none !important;
+    font-weight: 500 !important;
+    transition: all 0.3s ease !important;
+}
+
+.v-chip {
+    border-radius: 6px !important;
+    font-weight: 500 !important;
+    transition: all 0.3s ease !important;
+}
+
+.v-card {
+    border: 1px solid #e0e0e0 !important;
+    box-shadow: none !important;
+    transition: all 0.3s ease !important;
+}
+
+.v-card:hover {
+    border-color: #d0d0d0 !important;
+    box-shadow: none !important;
+    transform: translateY(-1px);
+}
+
+/* Remove all elevations */
+.elevation-0 {
+    box-shadow: none !important;
+}
+
+/* Cool filter styling */
+.filters-card {
+    overflow: hidden;
+}
+
+.filter-row {
+    transition: all 0.3s ease;
+}
+
+.filter-input {
+    transition: all 0.3s ease;
+}
+
+.filter-input:focus-within {
+    transform: translateY(-2px);
+}
+
+.sort-toggle {
+    border-radius: 8px !important;
+    transition: all 0.3s ease;
+}
+
+.density-toggle {
+    border-radius: 8px !important;
+    transition: all 0.3s ease;
+}
+
+/* Table styling */
+.table-card {
+    overflow: hidden;
+}
+
+.v-data-table {
+    border-radius: 0 0 8px 8px;
+    box-shadow: none !important;
+}
+
+.v-data-table .v-data-table__tr:hover {
+    background: #f5f5f5 !important;
+    transform: translateX(2px);
+    transition: all 0.3s ease;
+}
+
+/* Skeleton loading animations */
+.v-skeleton-loader {
+    border-radius: 8px !important;
+    animation: pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes pulse {
+    0% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.5;
+    }
+    100% {
+        opacity: 1;
+    }
+}
+
+/* Gap Utilities */
 .gap-1 {
     gap: 0.25rem;
-    /* 4px */
 }
 
 .gap-2 {
     gap: 0.5rem;
-    /* 8px */
 }
 
-.v-btn {
-    border-radius: 20px;
-    padding: 5px 10px;
+/* Smooth transitions for all interactive elements */
+.v-btn-toggle .v-btn {
+    transition: all 0.3s ease !important;
+}
+
+.v-btn-toggle .v-btn:hover {
+    background: rgba(25, 118, 210, 0.1) !important;
+}
+
+.v-text-field:focus-within,
+.v-select:focus-within {
+    transform: translateY(-1px);
 }
 </style>

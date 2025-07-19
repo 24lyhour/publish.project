@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreProductRequest;
 use App\Models\Product;
+use App\Models\Category;
 use Inertia\Inertia;
 use Illuminate\Http\Request;
 
@@ -14,10 +15,44 @@ class ProductController extends Controller
      * 
      * @return Response
      */
-    public function index()
+    public function index(Request $request)
     {
+        $filters = $request->only(['search', 'category_id', 'price_range', 'status', 'sort', 'direction']);
+        
+        $products = Product::filter($filters)
+            ->with('category')
+            ->when(!isset($filters['sort']), function ($query) {
+                return $query->latest();
+            })
+            ->paginate(10)
+            ->withQueryString();
+            
+        // Transform products to include category name
+        $products->through(function ($product) {
+            return [
+                'id' => $product->id,
+                'name' => $product->name,
+                'description' => $product->description,
+                'price' => $product->price,
+                'category' => $product->category?->name ?? 'No Category',
+                'category_id' => $product->category_id,
+                'imageUrl' => $product->imageUrl,
+                'quantity' => $product->quantity,
+                'status' => $product->status,
+                'size' => $product->size,
+                'ingredients' => $product->ingredients,
+                'allergens' => $product->allergens,
+                'extras' => $product->extras,
+                'type' => $product->type,
+                'created_at' => $product->created_at,
+                'updated_at' => $product->updated_at,
+            ];
+        });
+        
         return Inertia::render('Products/Index', [
-            'products' => Product::latest()->paginate(10),
+            'products' => $products,
+            'categories' => Category::all(['id', 'name']),
+            'filters' => $filters,
         ]);
     }
 

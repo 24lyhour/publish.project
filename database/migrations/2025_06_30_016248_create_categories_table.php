@@ -11,11 +11,17 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('products', function (Blueprint $table) {
+        Schema::create('categories', function (Blueprint $table) {
             $table->id();
             $table->string('name');
+            $table->string('type')->nullable();
             $table->text('description')->nullable();
-            $table->decimal('price', 8, 2);
+            $table->string('status')->default('active');
+            $table->string('imageUrl')->nullable();
+
+            // This is the correct relationship: A Category belongs to a Restaurant.
+            $table->foreignId('restaurant_id')->constrained('restaurants')->onDelete('cascade');
+
             $table->timestamps();
         });
     }
@@ -25,6 +31,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('products');
+        Schema::dropIfExists('categories');
     }
 };
