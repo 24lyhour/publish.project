@@ -468,7 +468,7 @@ const clearFilters = () => {
 
 // Event Handlers - Using Inertia modals
 const createProduct = () => {
-    router.get(route('dashboard.products.modal.create'));
+    router.get(route('dashboard.products.create'));
 };
 
 const viewProduct = (product) => {
@@ -476,11 +476,11 @@ const viewProduct = (product) => {
 };
 
 const editProduct = (product) => {
-    router.get(route('dashboard.products.modal.edit', product.id));
+    router.get(route('dashboard.products.edit', product.id));
 };
 
 const deleteProduct = (product) => {
-    router.get(route('dashboard.products.confirm-delete', product.id));
+    router.get(route('dashboard.products.delete', product.id));
 };
 </script>
 
