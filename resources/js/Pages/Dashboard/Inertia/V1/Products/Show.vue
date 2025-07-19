@@ -403,7 +403,7 @@ const formatPrice = (price) => {
  * 
  */
 const handleCallBack = () => {
-    router.visit(route('products.index'))
+    router.visit(route('dashboard.products.index'))
 }
 </script>
 

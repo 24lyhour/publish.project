@@ -56,18 +56,18 @@ Route::middleware(['auth'])->group(function () {
              */
             Route::group(['prefix' => 'products'], function () {
                 Route::resource('/', ProductController::class)->parameters(['' => 'product'])->names([
-                    'index' => 'products.index',
-                    'create' => 'products.create', 
-                    'store' => 'products.store',
-                    'show' => 'products.show',
-                    'edit' => 'products.edit',
-                    'update' => 'products.update',
-                    'destroy' => 'products.destroy'
+                    'index' => 'dashboard.products.index',
+                    'create' => 'dashboard.products.create', 
+                    'store' => 'dashboard.products.store',
+                    'show' => 'dashboard.products.show',
+                    'edit' => 'dashboard.products.edit',
+                    'update' => 'dashboard.products.update',
+                    'destroy' => 'dashboard.products.destroy'
                 ]);
                 
                 // Product delete route
                 Route::get('/{product}/delete', [ProductController::class, 'delete'])
-                    ->name('products.delete');
+                    ->name('dashboard.products.delete');
             });
             
             /**
