@@ -39,7 +39,7 @@ import { reactive } from 'vue'
 import { router, useForm } from '@inertiajs/vue3'
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue'
 import SakalModal from '@/Pages/Dashboard/Inertia/V1/Modals/FormSakal/SakalModal.vue'
-import ProductForm from '@/Pages/Dashboard/Inertia/V1/ProductForm/ProductForm.vue'
+import ProductForm from '@/Components/Dashboard/Inertia/V1/ProductForm.vue'
 import { createProductSchema } from '../Validation/ProductValidation.js'
 
 const props = defineProps({

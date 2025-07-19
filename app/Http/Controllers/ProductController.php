@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StoreProductRequest;
 use App\Models\Product;
 use App\Models\Category;
+use App\Transform\Dashboard\Inertia\V1\ProductTransform;
 use Inertia\Inertia;
 use Illuminate\Http\Request;
 
@@ -27,27 +28,8 @@ class ProductController extends Controller
             ->paginate(10)
             ->withQueryString();
             
-        // Transform products to include category name
-        $products->through(function ($product) {
-            return [
-                'id' => $product->id,
-                'name' => $product->name,
-                'description' => $product->description,
-                'price' => $product->price,
-                'category' => $product->category?->name ?? 'No Category',
-                'category_id' => $product->category_id,
-                'imageUrl' => $product->imageUrl,
-                'quantity' => $product->quantity,
-                'status' => $product->status,
-                'size' => $product->size,
-                'ingredients' => $product->ingredients,
-                'allergens' => $product->allergens,
-                'extras' => $product->extras,
-                'type' => $product->type,
-                'created_at' => $product->created_at,
-                'updated_at' => $product->updated_at,
-            ];
-        });
+        // Transform products using ProductTransform
+        $products = ProductTransform::paginated($products);
         
         return Inertia::render('Dashboard/Inertia/V1/Products/Index', [
             'products' => $products,
@@ -97,7 +79,7 @@ class ProductController extends Controller
     public function show(Product $product)
     {
        return Inertia::render('Dashboard/Inertia/V1/Products/Show', [
-            'product' => $product,
+            'product' => ProductTransform::single($product),
         ]);
     }
 
@@ -116,7 +98,7 @@ class ProductController extends Controller
     {
         return Inertia::render('Dashboard/Inertia/V1/Products/Edit')
             ->with([
-                'product' => $product,
+                'product' => ProductTransform::single($product),
                 'categories' => Category::all(['id', 'name']),
             ]);
     }
@@ -151,7 +133,7 @@ class ProductController extends Controller
     {
         return Inertia::render('Dashboard/Inertia/V1/Products/Delete')
             ->with([
-                'product' => $product,
+                'product' => ProductTransform::single($product),
             ]);
     }
 
