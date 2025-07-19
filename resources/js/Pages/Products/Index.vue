@@ -13,12 +13,10 @@
                             <p class="page-subtitle">Manage your product inventory with ease</p>
                         </div>
                     </div>
-                    <Link :href="route('products.create')">
-                        <v-btn color="primary" size="large" variant="elevated" class="create-btn">
-                            <v-icon start>mdi-plus</v-icon>
-                            Add Product
-                        </v-btn>
-                    </Link>
+                    <v-btn color="primary" size="large" variant="elevated" class="create-btn" @click="createProduct">
+                        <v-icon start>mdi-plus</v-icon>
+                        Add Product
+                    </v-btn>
                 </div>
             </div>
 
@@ -214,8 +212,8 @@
                                 </v-img>
                                 <div class="product-actions">
                                     <v-btn icon="mdi-eye" size="small" variant="elevated" @click="viewProduct(product)"></v-btn>
-                                    <v-btn icon="mdi-pencil" size="small" variant="elevated" color="primary" @click="openEditModal(product)"></v-btn>
-                                    <v-btn icon="mdi-delete" size="small" variant="elevated" color="error" @click="openDeleteModal(product)"></v-btn>
+                                    <v-btn icon="mdi-pencil" size="small" variant="elevated" color="primary" @click="editProduct(product)"></v-btn>
+                                    <v-btn icon="mdi-delete" size="small" variant="elevated" color="error" @click="deleteProduct(product)"></v-btn>
                                 </div>
                             </div>
                             <div class="product-content">
@@ -302,8 +300,8 @@
                             </div>
                             <div class="list-item-actions">
                                 <v-btn icon="mdi-eye" size="small" variant="text" @click="viewProduct(product)"></v-btn>
-                                <v-btn icon="mdi-pencil" size="small" variant="text" color="primary" @click="openEditModal(product)"></v-btn>
-                                <v-btn icon="mdi-delete" size="small" variant="text" color="error" @click="openDeleteModal(product)"></v-btn>
+                                <v-btn icon="mdi-pencil" size="small" variant="text" color="primary" @click="editProduct(product)"></v-btn>
+                                <v-btn icon="mdi-delete" size="small" variant="text" color="error" @click="deleteProduct(product)"></v-btn>
                             </div>
                         </div>
                     </template>
@@ -320,87 +318,13 @@
                 </div>
             </div>
 
-            <!-- Edit Modal -->
-            <v-dialog v-model="isEditModalOpen" max-width="600" persistent>
-                <v-card class="modal-card">
-                    <v-card-title class="modal-header">
-                        <v-icon icon="mdi-pencil" class="me-2"></v-icon>
-                        Edit Product
-                        <v-spacer></v-spacer>
-                        <v-btn icon="mdi-close" variant="text" size="small" @click="closeEditModal"></v-btn>
-                    </v-card-title>
-                    <v-card-text class="modal-content">
-                        <v-form @submit.prevent="submitEdit">
-                            <v-text-field 
-                                v-model="editForm.name" 
-                                label="Product Name" 
-                                variant="outlined" 
-                                density="comfortable" 
-                                :error-messages="editForm.errors.name" 
-                                class="mb-4">
-                            </v-text-field>
-                            <v-text-field 
-                                v-model="editForm.price" 
-                                label="Price" 
-                                type="number" 
-                                step="0.01" 
-                                variant="outlined" 
-                                density="comfortable"
-                                :error-messages="editForm.errors.price" 
-                                class="mb-4">
-                            </v-text-field>
-                            <v-textarea 
-                                v-model="editForm.description" 
-                                label="Description" 
-                                variant="outlined" 
-                                rows="4" 
-                                :error-messages="editForm.errors.description">
-                            </v-textarea>
-                        </v-form>
-                    </v-card-text>
-                    <v-card-actions class="modal-actions">
-                        <v-spacer></v-spacer>
-                        <v-btn variant="text" @click="closeEditModal">Cancel</v-btn>
-                        <v-btn color="primary" variant="elevated" @click="submitEdit" :loading="editForm.processing">
-                            Save Changes
-                        </v-btn>
-                    </v-card-actions>
-                </v-card>
-            </v-dialog>
-
-            <!-- Delete Modal -->
-            <v-dialog v-model="isDeleteModalOpen" max-width="500" persistent>
-                <v-card class="modal-card">
-                    <v-card-title class="modal-header error">
-                        <v-icon icon="mdi-alert-circle" class="me-2"></v-icon>
-                        Confirm Deletion
-                    </v-card-title>
-                    <v-card-text class="modal-content text-center">
-                        <div class="delete-icon">
-                            <v-icon icon="mdi-delete-alert" size="60" color="error"></v-icon>
-                        </div>
-                        <h3 class="delete-title">Are you sure?</h3>
-                        <p class="delete-description">
-                            You are about to delete <strong>{{ productToDelete?.name }}</strong>.
-                            This action cannot be undone.
-                        </p>
-                    </v-card-text>
-                    <v-card-actions class="modal-actions">
-                        <v-spacer></v-spacer>
-                        <v-btn variant="text" @click="closeDeleteModal">Cancel</v-btn>
-                        <v-btn color="error" variant="elevated" @click="submitDelete" :loading="deleteLoading">
-                            Delete Product
-                        </v-btn>
-                    </v-card-actions>
-                </v-card>
-            </v-dialog>
         </div>
     </AuthenticatedLayout>
 </template>
 
 <script setup>
 import { ref, computed, watch } from 'vue';
-import { Link, useForm, router } from '@inertiajs/vue3';
+import { router } from '@inertiajs/vue3';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 
 const props = defineProps({
@@ -417,7 +341,6 @@ const statusFilter = ref(props.filters?.status || null);
 const sortBy = ref(props.filters?.sort || 'name');
 const sortDesc = ref(props.filters?.direction === 'desc');
 const loading = ref(false);
-const deleteLoading = ref(false);
 const viewMode = ref('grid');
 
 // Configuration Options
@@ -445,18 +368,7 @@ const categoryOptions = computed(() => {
     return props.categories.map(cat => ({ title: cat.name, value: cat.id }));
 });
 
-// Modal State
-const isEditModalOpen = ref(false);
-const isDeleteModalOpen = ref(false);
-const productToDelete = ref(null);
-
-// Use Form
-const editForm = useForm({
-    id: null,
-    name: '',
-    price: '',
-    description: '',
-});
+// Component state - keeping minimal state for UI only
 
 // Computed Properties for Stats & Filtering
 const totalProducts = computed(() => props.products.data?.length || 0);
@@ -554,47 +466,21 @@ const clearFilters = () => {
     });
 };
 
-const viewProduct = (product) => router.get(route('products.show', product.id));
-
-const openEditModal = (product) => {
-    editForm.reset();
-    editForm.id = product.id;
-    editForm.name = product.name;
-    editForm.price = product.price;
-    editForm.description = product.description;
-    isEditModalOpen.value = true;
+// Event Handlers - Using Inertia modals
+const createProduct = () => {
+    router.get(route('products.create'));
 };
 
-const closeEditModal = () => {
-    isEditModalOpen.value = false;
-    editForm.reset();
+const viewProduct = (product) => {
+    router.get(route('products.show', product.id));
 };
 
-const submitEdit = () => {
-    editForm.put(route('products.update', editForm.id), {
-        preserveScroll: true,
-        onSuccess: () => closeEditModal(),
-    });
+const editProduct = (product) => {
+    router.get(route('products.edit', product.id));
 };
 
-const openDeleteModal = (product) => {
-    productToDelete.value = product;
-    isDeleteModalOpen.value = true;
-};
-
-const closeDeleteModal = () => {
-    isDeleteModalOpen.value = false;
-    productToDelete.value = null;
-};
-
-const submitDelete = () => {
-    if (!productToDelete.value) return;
-    deleteLoading.value = true;
-    router.delete(route('products.destroy', productToDelete.value.id), {
-        preserveScroll: true,
-        onSuccess: () => closeDeleteModal(),
-        onFinish: () => deleteLoading.value = false,
-    });
+const deleteProduct = (product) => {
+    router.get(route('products.confirm-delete', product.id));
 };
 </script>
 
@@ -1010,51 +896,6 @@ const submitDelete = () => {
     overflow: hidden;
 }
 
-/* Modal Styles */
-.modal-card {
-    border-radius: 16px !important;
-    overflow: hidden;
-}
-
-.modal-header {
-    background: #f7fafc;
-    border-bottom: 1px solid #e2e8f0;
-    padding: 20px 24px;
-    font-weight: 600;
-    display: flex;
-    align-items: center;
-}
-
-.modal-header.error {
-    background: #fed7d7;
-    color: #e53e3e;
-}
-
-.modal-content {
-    padding: 24px;
-}
-
-.modal-actions {
-    padding: 16px 24px;
-    border-top: 1px solid #e2e8f0;
-}
-
-.delete-icon {
-    margin-bottom: 16px;
-}
-
-.delete-title {
-    font-size: 1.25rem;
-    font-weight: 600;
-    color: #2d3748;
-    margin: 0 0 8px 0;
-}
-
-.delete-description {
-    color: #718096;
-    margin: 0;
-    line-height: 1.5;
-}
 
 /* Responsive Design */
 @media (max-width: 768px) {

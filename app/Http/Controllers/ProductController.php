@@ -63,7 +63,10 @@ class ProductController extends Controller
      */
     public function create()
     {
-        return Inertia::render('Products/Create');
+        return Inertia::modal('Products/Modals/CreateProduct')
+            ->with([
+                'categories' => Category::all(['id', 'name']),
+            ]);
     }
 
     /**
@@ -74,11 +77,11 @@ class ProductController extends Controller
      */
     public function store(StoreProductRequest $request)
     {
-        Product::create($request->validated());
+        $product = Product::create($request->validated());
 
         return redirect()->route('products.index')
             ->with('success', 'Product created successfully.');
-        }
+    }
 
     /**
      * Display the specified resource.
@@ -111,7 +114,11 @@ class ProductController extends Controller
      */
     public function edit(Product $product)
     {
-        return Inertia::render('Products/Edit', ['product' => $product]);
+        return Inertia::modal('Products/Modals/EditProduct')
+            ->with([
+                'product' => $product,
+                'categories' => Category::all(['id', 'name']),
+            ]);
     }
 
     /**
@@ -132,6 +139,20 @@ class ProductController extends Controller
 
         return redirect()->route('products.index')
             ->with('success', 'Product updated successfully.');
+    }
+
+    /**
+     * Show delete confirmation modal
+     * 
+     * @param Product $product
+     * @return Response
+     */
+    public function confirmDelete(Product $product)
+    {
+        return Inertia::modal('Products/Modals/DeleteProduct')
+            ->with([
+                'product' => $product,
+            ]);
     }
 
     /**
