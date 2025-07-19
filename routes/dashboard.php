@@ -65,13 +65,9 @@ Route::middleware(['auth'])->group(function () {
                     'destroy' => 'products.destroy'
                 ]);
                 
-                // Product modal routes
-                Route::get('/{product}/delete', [ProductController::class, 'confirmDelete'])
-                    ->name('products.confirm-delete');
-                Route::get('/modal/create', [ProductController::class, 'createModal'])
-                    ->name('products.modal.create');
-                Route::get('/{product}/modal/edit', [ProductController::class, 'editModal'])
-                    ->name('products.modal.edit');
+                // Product delete route
+                Route::get('/{product}/delete', [ProductController::class, 'delete'])
+                    ->name('products.delete');
             });
             
             /**

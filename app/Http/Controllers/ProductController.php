@@ -49,7 +49,7 @@ class ProductController extends Controller
             ];
         });
         
-        return Inertia::render('Products/Index', [
+        return Inertia::render('Dashboard/Inertia/V1/Products/Index', [
             'products' => $products,
             'categories' => Category::all(['id', 'name']),
             'filters' => $filters,
@@ -63,7 +63,7 @@ class ProductController extends Controller
      */
     public function create()
     {
-        return Inertia::modal('Dashboard/Inertia/V1/Modals/FormSakal/ProductFormModal')
+        return Inertia::render('Dashboard/Inertia/V1/Products/Create')
             ->with([
                 'categories' => Category::all(['id', 'name']),
             ]);
@@ -96,7 +96,7 @@ class ProductController extends Controller
      */
     public function show(Product $product)
     {
-       return Inertia::render('Products/Show', [
+       return Inertia::render('Dashboard/Inertia/V1/Products/Show', [
             'product' => $product,
         ]);
     }
@@ -114,7 +114,7 @@ class ProductController extends Controller
      */
     public function edit(Product $product)
     {
-        return Inertia::modal('Dashboard/Inertia/V1/Modals/FormSakal/ProductFormModal')
+        return Inertia::render('Dashboard/Inertia/V1/Products/Edit')
             ->with([
                 'product' => $product,
                 'categories' => Category::all(['id', 'name']),
@@ -147,9 +147,9 @@ class ProductController extends Controller
      * @param Product $product
      * @return Response
      */
-    public function confirmDelete(Product $product)
+    public function delete(Product $product)
     {
-        return Inertia::modal('Dashboard/Inertia/V1/Modals/FormSakal/SakalModal')
+        return Inertia::render('Dashboard/Inertia/V1/Products/Delete')
             ->with([
                 'product' => $product,
             ]);
@@ -173,37 +173,4 @@ class ProductController extends Controller
             ->with('success', 'Product deleted successfully.');
     }
 
-    /**
-     * Show create product modal
-     * 
-     * @return Response
-     */
-    public function createModal()
-    {
-        return Inertia::modal('Dashboard/Inertia/V1/Modals/FormSakal/ProductFormModal')
-            ->with([
-                'mode' => 'create',
-                'categories' => Category::all(['id', 'name']),
-                'method' => 'post',
-                'action' => route('dashboard.products.store'),
-            ]);
-    }
-
-    /**
-     * Show edit product modal
-     * 
-     * @param Product $product
-     * @return Response
-     */
-    public function editModal(Product $product)
-    {
-        return Inertia::modal('Dashboard/Inertia/V1/Modals/FormSakal/ProductFormModal')
-            ->with([
-                'mode' => 'edit',
-                'product' => $product,
-                'categories' => Category::all(['id', 'name']),
-                'method' => 'patch',
-                'action' => route('dashboard.products.update', $product),
-            ]);
-    }
 }
