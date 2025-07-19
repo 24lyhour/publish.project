@@ -1,493 +1,400 @@
 <template>
     <AuthenticatedLayout title="Products">
-        <v-container class="pa-6" fluid>
-            <!-- Simple Header Section -->
-            <div class="mb-6">
-                <div class="d-flex align-center justify-space-between mb-4">
-                    <div class="d-flex align-center">
-                        <v-icon icon="mdi-package-variant-closed" size="32" color="primary" class="me-3"></v-icon>
+        <div class="products-page">
+            <!-- Modern Header -->
+            <div class="page-header">
+                <div class="header-content">
+                    <div class="header-info">
+                        <div class="header-icon">
+                            <v-icon icon="mdi-package-variant-closed" size="40" color="primary"></v-icon>
+                        </div>
                         <div>
-                            <h1 class="text-h4 font-weight-bold mb-1">Products</h1>
-                            <p class="text-subtitle-1 text-grey-darken-1">Manage your product inventory</p>
+                            <h1 class="page-title">Products</h1>
+                            <p class="page-subtitle">Manage your product inventory with ease</p>
                         </div>
                     </div>
                     <Link :href="route('products.create')">
-                    <v-btn color="primary" size="large" variant="flat" prepend-icon="mdi-plus">
-                        Create Product
-                    </v-btn>
+                        <v-btn color="primary" size="large" variant="elevated" class="create-btn">
+                            <v-icon start>mdi-plus</v-icon>
+                            Add Product
+                        </v-btn>
                     </Link>
                 </div>
             </div>
 
-            <div>
-                <!-- Success/Error Messages (No changes here) -->
-                <v-expand-transition>
-                    <v-alert v-if="$page.props.flash.success" color="success" variant="elevated" prominent closable
-                        class="mb-6 success-alert" border="start" border-color="success">
-                        <template #prepend>
-                            <v-icon icon="mdi-check-circle-outline" size="24"></v-icon>
-                        </template>
-                        <div class="d-flex align-center">
-                            <div>
-                                <div class="text-h6 font-weight-bold mb-1">Success!</div>
-                                <div class="text-body-1">{{ $page.props.flash.success }}</div>
-                            </div>
-                        </div>
+            <!-- Success/Error Messages -->
+            <v-expand-transition>
+                <div v-if="$page.props.flash.success || $page.props.flash.error" class="alerts-container">
+                    <v-alert v-if="$page.props.flash.success" 
+                             type="success" 
+                             variant="tonal" 
+                             prominent 
+                             closable
+                             class="alert-success">
+                        {{ $page.props.flash.success }}
                     </v-alert>
-                </v-expand-transition>
+                    <v-alert v-if="$page.props.flash.error" 
+                             type="error" 
+                             variant="tonal" 
+                             prominent 
+                             closable
+                             class="alert-error">
+                        {{ $page.props.flash.error }}
+                    </v-alert>
+                </div>
+            </v-expand-transition>
 
-                <v-expand-transition>
-                    <v-alert v-if="$page.props.flash.error" color="error" variant="elevated" prominent closable
-                        class="mb-6" border="start" border-color="error">
-                        <template #prepend>
-                            <v-icon icon="mdi-alert-circle-outline" size="24"></v-icon>
-                        </template>
-                        <div class="d-flex align-center">
-                            <div>
-                                <div class="text-h6 font-weight-bold mb-1">Error!</div>
-                                <div class="text-body-1">{{ $page.props.flash.error }}</div>
+            <!-- Statistics Dashboard -->
+            <div class="stats-section">
+                <v-row>
+                    <v-col cols="12" sm="6" md="3">
+                        <div class="stat-card">
+                            <div class="stat-icon primary">
+                                <v-icon icon="mdi-package-variant" size="24"></v-icon>
+                            </div>
+                            <div class="stat-content">
+                                <div class="stat-value">{{ totalProducts }}</div>
+                                <div class="stat-label">Total Products</div>
                             </div>
                         </div>
-                    </v-alert>
-                </v-expand-transition>
+                    </v-col>
+                    <v-col cols="12" sm="6" md="3">
+                        <div class="stat-card">
+                            <div class="stat-icon success">
+                                <v-icon icon="mdi-currency-usd" size="24"></v-icon>
+                            </div>
+                            <div class="stat-content">
+                                <div class="stat-value">${{ averagePrice }}</div>
+                                <div class="stat-label">Average Price</div>
+                            </div>
+                        </div>
+                    </v-col>
+                    <v-col cols="12" sm="6" md="3">
+                        <div class="stat-card">
+                            <div class="stat-icon warning">
+                                <v-icon icon="mdi-trending-up" size="24"></v-icon>
+                            </div>
+                            <div class="stat-content">
+                                <div class="stat-value">${{ highestPrice }}</div>
+                                <div class="stat-label">Highest Price</div>
+                            </div>
+                        </div>
+                    </v-col>
+                    <v-col cols="12" sm="6" md="3">
+                        <div class="stat-card">
+                            <div class="stat-icon info">
+                                <v-icon icon="mdi-trending-down" size="24"></v-icon>
+                            </div>
+                            <div class="stat-content">
+                                <div class="stat-value">${{ lowestPrice }}</div>
+                                <div class="stat-label">Lowest Price</div>
+                            </div>
+                        </div>
+                    </v-col>
+                </v-row>
             </div>
 
-            <!-- Statistics Cards with Skeleton Loading -->
-            <v-row class="mb-6">
-                <v-col cols="12" md="3">
-                    <v-card class="elevation-0" rounded="lg">
-                        <v-card-text class="text-center pa-4">
-                            <template v-if="loading">
-                                <v-skeleton-loader type="avatar" class="mb-2"></v-skeleton-loader>
-                                <v-skeleton-loader type="text" class="mb-1"></v-skeleton-loader>
-                                <v-skeleton-loader type="text" width="60%"></v-skeleton-loader>
-                            </template>
-                            <template v-else>
-                                <v-icon size="28" color="primary" class="mb-2">mdi-package-variant</v-icon>
-                                <div class="text-h5 font-weight-bold text-primary">{{ totalProducts }}</div>
-                                <div class="text-body-2 text-grey-darken-1">Total Products</div>
-                            </template>
-                        </v-card-text>
-                    </v-card>
-                </v-col>
-                <v-col cols="12" md="3">
-                    <v-card class="elevation-0" rounded="lg">
-                        <v-card-text class="text-center pa-4">
-                            <template v-if="loading">
-                                <v-skeleton-loader type="avatar" class="mb-2"></v-skeleton-loader>
-                                <v-skeleton-loader type="text" class="mb-1"></v-skeleton-loader>
-                                <v-skeleton-loader type="text" width="60%"></v-skeleton-loader>
-                            </template>
-                            <template v-else>
-                                <v-icon size="28" color="success" class="mb-2">mdi-currency-usd</v-icon>
-                                <div class="text-h5 font-weight-bold text-success">${{ averagePrice }}</div>
-                                <div class="text-body-2 text-grey-darken-1">Average Price</div>
-                            </template>
-                        </v-card-text>
-                    </v-card>
-                </v-col>
-                <v-col cols="12" md="3">
-                    <v-card class="elevation-0" rounded="lg">
-                        <v-card-text class="text-center pa-4">
-                            <template v-if="loading">
-                                <v-skeleton-loader type="avatar" class="mb-2"></v-skeleton-loader>
-                                <v-skeleton-loader type="text" class="mb-1"></v-skeleton-loader>
-                                <v-skeleton-loader type="text" width="60%"></v-skeleton-loader>
-                            </template>
-                            <template v-else>
-                                <v-icon size="28" color="warning" class="mb-2">mdi-trending-up</v-icon>
-                                <div class="text-h5 font-weight-bold text-warning">${{ highestPrice }}</div>
-                                <div class="text-body-2 text-grey-darken-1">Highest Price</div>
-                            </template>
-                        </v-card-text>
-                    </v-card>
-                </v-col>
-                <v-col cols="12" md="3">
-                    <v-card class="elevation-0" rounded="lg">
-                        <v-card-text class="text-center pa-4">
-                            <template v-if="loading">
-                                <v-skeleton-loader type="avatar" class="mb-2"></v-skeleton-loader>
-                                <v-skeleton-loader type="text" class="mb-1"></v-skeleton-loader>
-                                <v-skeleton-loader type="text" width="60%"></v-skeleton-loader>
-                            </template>
-                            <template v-else>
-                                <v-icon size="28" color="info" class="mb-2">mdi-trending-down</v-icon>
-                                <div class="text-h5 font-weight-bold text-info">${{ lowestPrice }}</div>
-                                <div class="text-body-2 text-grey-darken-1">Lowest Price</div>
-                            </template>
-                        </v-card-text>
-                    </v-card>
-                </v-col>
-            </v-row>
-
-            <!-- Cool Filters Layout -->
-            <v-card class="mb-6 elevation-0 filters-card" rounded="lg">
-                <v-card-title class="d-flex align-center pa-4 bg-grey-lighten-5">
-                    <v-icon icon="mdi-filter-variant" class="me-2" color="primary"></v-icon>
-                    <span class="text-h6 font-weight-bold">Filters</span>
-                    <v-spacer></v-spacer>
-                    <v-btn icon="mdi-refresh" variant="text" size="small" @click="clearFilters" color="primary">
-                        <v-tooltip activator="parent">Clear All Filters</v-tooltip>
+            <!-- Filters Section -->
+            <div class="filters-section">
+                <div class="filters-header">
+                    <h3 class="filters-title">
+                        <v-icon icon="mdi-filter-variant" class="me-2"></v-icon>
+                        Filters & Search
+                    </h3>
+                    <v-btn variant="text" size="small" @click="clearFilters" class="clear-btn">
+                        <v-icon start>mdi-refresh</v-icon>
+                        Clear All
                     </v-btn>
-                </v-card-title>
-                <v-card-text class="pa-4">
+                </div>
+                <div class="filters-content">
+                    <v-row>
+                        <v-col cols="12" md="4">
+                            <v-text-field 
+                                v-model="searchQuery" 
+                                label="Search products..." 
+                                prepend-inner-icon="mdi-magnify" 
+                                variant="outlined" 
+                                density="comfortable" 
+                                clearable
+                                hide-details
+                                class="search-field">
+                            </v-text-field>
+                        </v-col>
+                        <v-col cols="12" md="2">
+                            <v-select 
+                                v-model="categoryFilter" 
+                                :items="categoryOptions" 
+                                label="Category" 
+                                variant="outlined" 
+                                density="comfortable" 
+                                clearable
+                                hide-details>
+                            </v-select>
+                        </v-col>
+                        <v-col cols="12" md="2">
+                            <v-select 
+                                v-model="priceFilter" 
+                                :items="priceRanges" 
+                                label="Price Range" 
+                                variant="outlined" 
+                                density="comfortable" 
+                                clearable
+                                hide-details>
+                            </v-select>
+                        </v-col>
+                        <v-col cols="12" md="2">
+                            <v-select 
+                                v-model="statusFilter" 
+                                :items="statusOptions" 
+                                label="Status" 
+                                variant="outlined" 
+                                density="comfortable" 
+                                clearable
+                                hide-details>
+                            </v-select>
+                        </v-col>
+                        <v-col cols="12" md="2">
+                            <v-select 
+                                v-model="sortBy" 
+                                :items="sortOptions" 
+                                label="Sort by" 
+                                variant="outlined" 
+                                density="comfortable"
+                                hide-details>
+                            </v-select>
+                        </v-col>
+                    </v-row>
+                </div>
+            </div>
+
+            <!-- Products Section -->
+            <div class="products-section">
+                <div class="products-header">
+                    <div class="products-info">
+                        <h3 class="products-title">
+                            <v-icon icon="mdi-view-grid" class="me-2"></v-icon>
+                            Products
+                        </h3>
+                        <v-chip color="primary" size="small" variant="tonal">
+                            {{ filteredProducts.length }} items
+                        </v-chip>
+                    </div>
+                    <div class="view-controls">
+                        <v-btn-toggle v-model="viewMode" variant="outlined" density="comfortable">
+                            <v-btn value="grid" icon="mdi-view-grid" size="small">
+                                <v-tooltip activator="parent">Grid View</v-tooltip>
+                            </v-btn>
+                            <v-btn value="list" icon="mdi-view-list" size="small">
+                                <v-tooltip activator="parent">List View</v-tooltip>
+                            </v-btn>
+                        </v-btn-toggle>
+                    </div>
+                </div>
+
+                <!-- Grid View -->
+                <div v-if="viewMode === 'grid'" class="products-grid">
                     <template v-if="loading">
-                        <v-row>
-                            <v-col cols="12" md="3">
-                                <v-skeleton-loader type="text-field"></v-skeleton-loader>
-                            </v-col>
-                            <v-col cols="12" md="2">
-                                <v-skeleton-loader type="text-field"></v-skeleton-loader>
-                            </v-col>
-                            <v-col cols="12" md="2">
-                                <v-skeleton-loader type="text-field"></v-skeleton-loader>
-                            </v-col>
-                            <v-col cols="12" md="2">
-                                <v-skeleton-loader type="text-field"></v-skeleton-loader>
-                            </v-col>
-                            <v-col cols="12" md="2">
-                                <v-skeleton-loader type="text-field"></v-skeleton-loader>
-                            </v-col>
-                            <v-col cols="12" md="1">
-                                <v-skeleton-loader type="text-field"></v-skeleton-loader>
-                            </v-col>
-                        </v-row>
+                        <div v-for="n in 8" :key="n" class="product-skeleton">
+                            <v-skeleton-loader type="card"></v-skeleton-loader>
+                        </div>
                     </template>
-                    <template v-else>
-                        <v-row class="filter-row">
-                            <v-col cols="12" md="3">
-                                <v-text-field v-model="searchQuery" label="Search products..."
-                                    prepend-inner-icon="mdi-magnify" variant="outlined" density="comfortable" clearable
-                                    hide-details class="filter-input"></v-text-field>
-                            </v-col>
-                            <v-col cols="12" md="2">
-                                <v-select v-model="categoryFilter" :items="categoryOptions" label="Category"
-                                    prepend-inner-icon="mdi-tag" variant="outlined" density="comfortable" clearable
-                                    hide-details class="filter-input"></v-select>
-                            </v-col>
-                            <v-col cols="12" md="2">
-                                <v-select v-model="priceFilter" :items="priceRanges" label="Price Range"
-                                    prepend-inner-icon="mdi-currency-usd" variant="outlined" density="comfortable" clearable
-                                    hide-details class="filter-input"></v-select>
-                            </v-col>
-                            <v-col cols="12" md="2">
-                                <v-select v-model="statusFilter" :items="statusOptions" label="Status"
-                                    prepend-inner-icon="mdi-check-circle" variant="outlined" density="comfortable" clearable
-                                    hide-details class="filter-input"></v-select>
-                            </v-col>
-                            <v-col cols="12" md="2">
-                                <v-select v-model="sortBy" :items="sortOptions" label="Sort by"
-                                    prepend-inner-icon="mdi-sort" variant="outlined" density="comfortable"
-                                    hide-details class="filter-input"></v-select>
-                            </v-col>
-                            <v-col cols="12" md="1">
-                                <v-btn-toggle v-model="sortDesc" variant="outlined" density="comfortable" class="sort-toggle">
-                                    <v-btn :value="false" icon="mdi-sort-ascending" size="small">
-                                        <v-tooltip activator="parent">Ascending</v-tooltip>
-                                    </v-btn>
-                                    <v-btn :value="true" icon="mdi-sort-descending" size="small">
-                                        <v-tooltip activator="parent">Descending</v-tooltip>
-                                    </v-btn>
-                                </v-btn-toggle>
-                            </v-col>
-                        </v-row>
-                    </template>
-                </v-card-text>
-            </v-card>
-
-            <!-- Cool Products Table -->
-            <v-card class="elevation-0 table-card" rounded="lg">
-                <v-card-title class="d-flex align-center justify-space-between pa-4 bg-grey-lighten-5">
-                    <div class="d-flex align-center">
-                        <v-icon icon="mdi-table" class="me-2" color="primary"></v-icon>
-                        <span class="text-h6 font-weight-bold">Products Table</span>
-                        <template v-if="loading">
-                            <v-skeleton-loader type="chip" class="ml-4" width="80px"></v-skeleton-loader>
-                        </template>
-                        <template v-else>
-                            <v-chip class="ml-4" color="primary" size="small" variant="flat">
-                                {{ filteredProducts.length }} items
-                            </v-chip>
-                        </template>
-                    </div>
-                    <div class="d-flex align-center gap-2">
-                        <v-btn-toggle v-model="viewMode" variant="outlined" size="small" class="view-toggle me-2">
-                            <v-btn value="table" icon="mdi-table" size="small">
-                                <v-tooltip activator="parent">Table View</v-tooltip>
-                            </v-btn>
-                            <v-btn value="cards" icon="mdi-view-grid" size="small">
-                                <v-tooltip activator="parent">Card View</v-tooltip>
-                            </v-btn>
-                        </v-btn-toggle>
-                        <v-btn-toggle v-model="tableDensity" variant="outlined" size="small" class="density-toggle">
-                            <v-btn value="compact" icon="mdi-view-compact" size="small">
-                                <v-tooltip activator="parent">Compact</v-tooltip>
-                            </v-btn>
-                            <v-btn value="comfortable" icon="mdi-view-comfortable" size="small">
-                                <v-tooltip activator="parent">Comfortable</v-tooltip>
-                            </v-btn>
-                            <v-btn value="default" icon="mdi-view-module" size="small">
-                                <v-tooltip activator="parent">Default</v-tooltip>
-                            </v-btn>
-                        </v-btn-toggle>
-                    </div>
-                </v-card-title>
-
-                <!-- Table View -->
-                <v-data-table v-if="viewMode === 'table'" v-model:search="searchQuery" v-model:sort-by="tableSortBy" :headers="headers"
-                    :items="filteredProducts" :items-per-page="itemsPerPage" :loading="loading" :density="tableDensity"
-                    :items-per-page-options="itemsPerPageOptions" class="elevation-0" hover
-                    :height="tableHeight">
-
-                    <template #loading>
-                        <v-skeleton-loader type="table-row@6"></v-skeleton-loader>
-                    </template>
-
-                    <template #item.product="{ item }">
-                        <div class="d-flex align-center" :class="getProductCellClass">
-                            <v-avatar :image="item.imageUrl || undefined" :size="getAvatarSize" class="me-3 elevation-1"
-                                rounded="lg">
-                                <v-icon v-if="!item.imageUrl" icon="mdi-package-variant" color="grey"></v-icon>
-                            </v-avatar>
-                            <div>
-                                <div :class="getProductNameClass">{{ item.name }}</div>
-                                <div v-if="showProductDetails" class="text-caption text-grey-darken-1 mt-1">
-                                    ID: {{ item.id }} • Created: {{ formatDate(item.created_at) }}
+                    <template v-else-if="filteredProducts.length">
+                        <div v-for="product in filteredProducts" :key="product.id" class="product-card">
+                            <div class="product-image">
+                                <v-img 
+                                    :src="product.imageUrl || '/placeholder.jpg'" 
+                                    :alt="product.name" 
+                                    aspect-ratio="1" 
+                                    cover>
+                                    <template #placeholder>
+                                        <div class="image-placeholder">
+                                            <v-icon icon="mdi-package-variant" size="40" color="grey-lighten-2"></v-icon>
+                                        </div>
+                                    </template>
+                                </v-img>
+                                <div class="product-actions">
+                                    <v-btn icon="mdi-eye" size="small" variant="elevated" @click="viewProduct(product)"></v-btn>
+                                    <v-btn icon="mdi-pencil" size="small" variant="elevated" color="primary" @click="openEditModal(product)"></v-btn>
+                                    <v-btn icon="mdi-delete" size="small" variant="elevated" color="error" @click="openDeleteModal(product)"></v-btn>
+                                </div>
+                            </div>
+                            <div class="product-content">
+                                <div class="product-badges">
+                                    <v-chip 
+                                        :color="getStockColor(product.quantity || 0)" 
+                                        size="x-small" 
+                                        variant="flat"
+                                        class="stock-badge">
+                                        {{ getStockStatus(product.quantity || 0) }}
+                                    </v-chip>
+                                    <v-chip 
+                                        :color="getPriceColor(product.price)" 
+                                        size="x-small" 
+                                        variant="flat"
+                                        class="price-badge">
+                                        ${{ formatPrice(product.price) }}
+                                    </v-chip>
+                                </div>
+                                <h4 class="product-name">{{ product.name }}</h4>
+                                <p class="product-description">{{ truncateText(product.description, 60) }}</p>
+                                <div class="product-meta">
+                                    <span class="product-category">{{ product.category || 'Uncategorized' }}</span>
+                                    <span class="product-id">ID: {{ product.id }}</span>
                                 </div>
                             </div>
                         </div>
                     </template>
-
-                    <template #item.price="{ item }">
-                        <v-chip :color="getPriceColor(item.price)" variant="flat" :size="getPriceChipSize"
-                            class="font-weight-bold text-white">
-                            <v-icon start icon="mdi-currency-usd" :size="getPriceIconSize"></v-icon>
-                            {{ formatPrice(item.price) }}
-                        </v-chip>
-                    </template>
-
-                    <template #item.description="{ item }">
-                        <div class="description-cell">
-                            <p :class="getDescriptionClass">
-                                {{ truncateText(item.description, getDescriptionLength) }}
-                            </p>
-                            <v-tooltip v-if="item.description && item.description.length > getDescriptionLength"
-                                activator="parent" max-width="300px">
-                                {{ item.description }}
-                            </v-tooltip>
-                        </div>
-                    </template>
-
-                    <template #item.stock_status="{ item }">
-                        <v-chip :color="getStockColor(item.quantity || 0)" variant="tonal" :size="getChipSize"
-                            class="font-weight-medium">
-                            {{ getStockStatus(item.quantity || 0) }}
-                        </v-chip>
-                    </template>
-
-                    <template #item.category="{ item }">
-                        <v-chip color="blue-grey" variant="flat" :size="getChipSize" class="text-white">
-                            {{ item.category || 'No Category' }}
-                        </v-chip>
-                    </template>
-
-                    <template #item.actions="{ item }">
-                        <!-- This container now uses the dynamic class -->
-                        <div class="d-flex align-center" :class="getActionClass">
-                            <v-tooltip text="View Details">
-                                <template #activator="{ props: tooltipProps }">
-                                    <v-btn v-bind="tooltipProps" color="grey-darken-3" variant="flat"
-                                        :size="getActionButtonSize" icon @click="viewProduct(item)">
-                                        <v-icon icon="mdi-eye" :size="getActionIconSize" color="white"></v-icon>
-                                    </v-btn>
-                                </template>
-                            </v-tooltip>
-                            <v-tooltip text="Edit Product">
-                                <template #activator="{ props: tooltipProps }">
-                                    <v-btn v-bind="tooltipProps" color="black" variant="flat"
-                                        :size="getActionButtonSize" icon @click="openEditModal(item)">
-                                        <v-icon icon="mdi-pencil" :size="getActionIconSize" color="white"></v-icon>
-                                    </v-btn>
-                                </template>
-                            </v-tooltip>
-                            <v-tooltip text="Delete Product">
-                                <template #activator="{ props: tooltipProps }">
-                                    <v-btn v-bind="tooltipProps" color="error" variant="flat"
-                                        :size="getActionButtonSize" icon @click="openDeleteModal(item)">
-                                        <v-icon icon="mdi-delete" :size="getActionIconSize" color="white"></v-icon>
-                                    </v-btn>
-                                </template>
-                            </v-tooltip>
-                        </div>
-                    </template>
-
-                    <template #no-data>
-                        <div class="text-center py-12">
-                            <v-icon size="64" color="grey-lighten-1" class="mb-4">mdi-magnify-close</v-icon>
-                            <h3 class="text-h6 text-black mb-2">No Products Found</h3>
-                            <p class="text-body-2 text-grey-darken-1">Your search or filter returned no results.</p>
-                            <v-btn color="black" variant="elevated" @click="clearFilters" class="mt-4">
-                                Clear Filters & Search
-                            </v-btn>
-                        </div>
-                    </template>
-                </v-data-table>
-
-                <!-- Card View -->
-                <div v-else-if="viewMode === 'cards'" class="pa-4">
-                    <template v-if="loading">
-                        <v-row>
-                            <v-col v-for="n in 8" :key="n" cols="12" sm="6" md="4" lg="3">
-                                <v-skeleton-loader type="card" class="mb-4"></v-skeleton-loader>
-                            </v-col>
-                        </v-row>
-                    </template>
-                    <template v-else-if="filteredProducts.length">
-                        <v-row>
-                            <v-col v-for="product in filteredProducts" :key="product.id" cols="12" sm="6" md="4" lg="3">
-                                <v-card class="product-card hover-card" rounded="lg" elevation="0">
-                                    <div class="product-image-container">
-                                        <v-img :src="product.imageUrl || '/placeholder-image.jpg'" 
-                                               :alt="product.name" 
-                                               aspect-ratio="1" 
-                                               cover 
-                                               class="product-card-image">
-                                            <template #placeholder>
-                                                <div class="d-flex align-center justify-center fill-height">
-                                                    <v-icon icon="mdi-package-variant" size="48" color="grey-lighten-2"></v-icon>
-                                                </div>
-                                            </template>
-                                        </v-img>
-                                        <div class="product-overlay">
-                                            <v-btn icon="mdi-eye" variant="flat" color="white" size="small" 
-                                                   @click="viewProduct(product)" class="overlay-btn">
-                                            </v-btn>
-                                            <v-btn icon="mdi-pencil" variant="flat" color="primary" size="small" 
-                                                   @click="openEditModal(product)" class="overlay-btn">
-                                            </v-btn>
-                                            <v-btn icon="mdi-delete" variant="flat" color="error" size="small" 
-                                                   @click="openDeleteModal(product)" class="overlay-btn">
-                                            </v-btn>
-                                        </div>
-                                    </div>
-                                    <v-card-text class="pa-4">
-                                        <div class="d-flex align-center justify-space-between mb-2">
-                                            <v-chip :color="getStockColor(product.quantity || 0)" 
-                                                    variant="tonal" size="small" class="font-weight-medium">
-                                                {{ getStockStatus(product.quantity || 0) }}
-                                            </v-chip>
-                                            <v-chip :color="getPriceColor(product.price)" 
-                                                    variant="flat" size="small" class="font-weight-bold text-white">
-                                                <v-icon start icon="mdi-currency-usd" size="14"></v-icon>
-                                                {{ formatPrice(product.price) }}
-                                            </v-chip>
-                                        </div>
-                                        <h3 class="text-subtitle-1 font-weight-bold mb-1 product-name">
-                                            {{ product.name }}
-                                        </h3>
-                                        <p class="text-body-2 text-grey-darken-1 mb-2 product-description">
-                                            {{ truncateText(product.description, 80) }}
-                                        </p>
-                                        <div class="d-flex align-center justify-space-between">
-                                            <v-chip color="blue-grey" variant="outlined" size="small">
-                                                {{ product.category || 'No Category' }}
-                                            </v-chip>
-                                            <span class="text-caption text-grey-darken-1">
-                                                ID: {{ product.id }}
-                                            </span>
-                                        </div>
-                                    </v-card-text>
-                                </v-card>
-                            </v-col>
-                        </v-row>
-                    </template>
                     <template v-else>
-                        <div class="text-center py-12">
-                            <v-icon size="64" color="grey-lighten-1" class="mb-4">mdi-magnify-close</v-icon>
-                            <h3 class="text-h6 text-black mb-2">No Products Found</h3>
-                            <p class="text-body-2 text-grey-darken-1">Your search or filter returned no results.</p>
-                            <v-btn color="black" variant="elevated" @click="clearFilters" class="mt-4">
-                                Clear Filters & Search
-                            </v-btn>
+                        <div class="empty-state">
+                            <div class="empty-icon">
+                                <v-icon icon="mdi-package-variant-closed" size="80" color="grey-lighten-2"></v-icon>
+                            </div>
+                            <h3 class="empty-title">No Products Found</h3>
+                            <p class="empty-description">Try adjusting your search or filters</p>
+                            <v-btn color="primary" @click="clearFilters">Clear Filters</v-btn>
                         </div>
                     </template>
                 </div>
-            </v-card>
-            <!-- END OF MODIFIED SECTION -->
 
+                <!-- List View -->
+                <div v-else class="products-list">
+                    <template v-if="loading">
+                        <div v-for="n in 6" :key="n" class="list-skeleton">
+                            <v-skeleton-loader type="list-item-avatar-two-line"></v-skeleton-loader>
+                        </div>
+                    </template>
+                    <template v-else-if="filteredProducts.length">
+                        <div v-for="product in filteredProducts" :key="product.id" class="product-list-item">
+                            <div class="list-item-avatar">
+                                <v-avatar size="60" rounded="lg">
+                                    <v-img :src="product.imageUrl || '/placeholder.jpg'" :alt="product.name">
+                                        <template #placeholder>
+                                            <v-icon icon="mdi-package-variant" size="30" color="grey-lighten-2"></v-icon>
+                                        </template>
+                                    </v-img>
+                                </v-avatar>
+                            </div>
+                            <div class="list-item-content">
+                                <div class="list-item-header">
+                                    <h4 class="list-item-title">{{ product.name }}</h4>
+                                    <div class="list-item-badges">
+                                        <v-chip 
+                                            :color="getPriceColor(product.price)" 
+                                            size="small" 
+                                            variant="flat"
+                                            class="price-chip">
+                                            ${{ formatPrice(product.price) }}
+                                        </v-chip>
+                                        <v-chip 
+                                            :color="getStockColor(product.quantity || 0)" 
+                                            size="small" 
+                                            variant="tonal">
+                                            {{ getStockStatus(product.quantity || 0) }}
+                                        </v-chip>
+                                    </div>
+                                </div>
+                                <p class="list-item-description">{{ truncateText(product.description, 100) }}</p>
+                                <div class="list-item-meta">
+                                    <span class="meta-item">Category: {{ product.category || 'Uncategorized' }}</span>
+                                    <span class="meta-item">ID: {{ product.id }}</span>
+                                    <span class="meta-item">Created: {{ formatDate(product.created_at) }}</span>
+                                </div>
+                            </div>
+                            <div class="list-item-actions">
+                                <v-btn icon="mdi-eye" size="small" variant="text" @click="viewProduct(product)"></v-btn>
+                                <v-btn icon="mdi-pencil" size="small" variant="text" color="primary" @click="openEditModal(product)"></v-btn>
+                                <v-btn icon="mdi-delete" size="small" variant="text" color="error" @click="openDeleteModal(product)"></v-btn>
+                            </div>
+                        </div>
+                    </template>
+                    <template v-else>
+                        <div class="empty-state">
+                            <div class="empty-icon">
+                                <v-icon icon="mdi-package-variant-closed" size="80" color="grey-lighten-2"></v-icon>
+                            </div>
+                            <h3 class="empty-title">No Products Found</h3>
+                            <p class="empty-description">Try adjusting your search or filters</p>
+                            <v-btn color="primary" @click="clearFilters">Clear Filters</v-btn>
+                        </div>
+                    </template>
+                </div>
+            </div>
 
-            <!-- Modals (No changes here, they are fine) -->
+            <!-- Edit Modal -->
             <v-dialog v-model="isEditModalOpen" max-width="600" persistent>
-                <v-card class="elevation-8" rounded="lg">
-                    <v-card-title class="d-flex align-center bg-black text-white pa-6">
-                        <v-icon icon="mdi-pencil" class="me-2" color="white"></v-icon>
+                <v-card class="modal-card">
+                    <v-card-title class="modal-header">
+                        <v-icon icon="mdi-pencil" class="me-2"></v-icon>
                         Edit Product
                         <v-spacer></v-spacer>
-                        <v-btn icon="mdi-close" variant="text" size="small" @click="closeEditModal"
-                            class="text-white"></v-btn>
+                        <v-btn icon="mdi-close" variant="text" size="small" @click="closeEditModal"></v-btn>
                     </v-card-title>
-                    <v-card-text class="pa-6">
-                        <form @submit.prevent="submitEdit">
-                            <v-text-field v-model="editForm.name" label="Product Name" prepend-inner-icon="mdi-package"
-                                variant="outlined" density="comfortable" :error-messages="editForm.errors.name" required
-                                counter="255" class="mb-4"></v-text-field>
-
-                            <v-text-field v-model="editForm.price" label="Price" type="number" step="0.01" min="0"
-                                prepend-inner-icon="mdi-currency-usd" variant="outlined" density="comfortable"
-                                :error-messages="editForm.errors.price" required class="mb-4"></v-text-field>
-
-                            <v-textarea v-model="editForm.description" label="Description" prepend-inner-icon="mdi-text"
-                                variant="outlined" rows="4" counter="1000" :error-messages="editForm.errors.description"
-                                class="mb-4"></v-textarea>
-
-                            <v-text-field v-model="editForm.image_url" label="Image URL (Optional)" type="url"
-                                prepend-inner-icon="mdi-image" variant="outlined" density="comfortable"
-                                :error-messages="editForm.errors.image_url"
-                                placeholder="https://example.com/image.jpg"></v-text-field>
-                        </form>
+                    <v-card-text class="modal-content">
+                        <v-form @submit.prevent="submitEdit">
+                            <v-text-field 
+                                v-model="editForm.name" 
+                                label="Product Name" 
+                                variant="outlined" 
+                                density="comfortable" 
+                                :error-messages="editForm.errors.name" 
+                                class="mb-4">
+                            </v-text-field>
+                            <v-text-field 
+                                v-model="editForm.price" 
+                                label="Price" 
+                                type="number" 
+                                step="0.01" 
+                                variant="outlined" 
+                                density="comfortable"
+                                :error-messages="editForm.errors.price" 
+                                class="mb-4">
+                            </v-text-field>
+                            <v-textarea 
+                                v-model="editForm.description" 
+                                label="Description" 
+                                variant="outlined" 
+                                rows="4" 
+                                :error-messages="editForm.errors.description">
+                            </v-textarea>
+                        </v-form>
                     </v-card-text>
-                    <v-card-actions class="pa-6 pt-0">
+                    <v-card-actions class="modal-actions">
                         <v-spacer></v-spacer>
-                        <v-btn variant="text" @click="closeEditModal" size="large">Cancel</v-btn>
-                        <v-btn color="black" variant="elevated" @click="submitEdit" :loading="editForm.processing"
-                            size="large" class="elevation-2 text-white">
-                            <v-icon start>mdi-content-save</v-icon>
+                        <v-btn variant="text" @click="closeEditModal">Cancel</v-btn>
+                        <v-btn color="primary" variant="elevated" @click="submitEdit" :loading="editForm.processing">
                             Save Changes
                         </v-btn>
                     </v-card-actions>
                 </v-card>
             </v-dialog>
 
+            <!-- Delete Modal -->
             <v-dialog v-model="isDeleteModalOpen" max-width="500" persistent>
-                <v-card class="elevation-8" rounded="lg">
-                    <v-card-title class="d-flex align-center bg-error text-white pa-6">
-                        <v-icon icon="mdi-alert-circle" class="me-2" color="white"></v-icon>
+                <v-card class="modal-card">
+                    <v-card-title class="modal-header error">
+                        <v-icon icon="mdi-alert-circle" class="me-2"></v-icon>
                         Confirm Deletion
                     </v-card-title>
-                    <v-card-text class="pa-6">
-                        <div class="text-center">
-                            <v-icon size="64" color="error" class="mb-4">mdi-delete-alert</v-icon>
-                            <h3 class="text-h6 mb-4 text-black">Are you sure?</h3>
-                            <p class="text-body-1 text-grey-darken-1">
-                                You are about to delete the product
-                                <strong class="text-black">{{ productToDelete?.name }}</strong>.
-                                This action cannot be undone.
-                            </p>
+                    <v-card-text class="modal-content text-center">
+                        <div class="delete-icon">
+                            <v-icon icon="mdi-delete-alert" size="60" color="error"></v-icon>
                         </div>
+                        <h3 class="delete-title">Are you sure?</h3>
+                        <p class="delete-description">
+                            You are about to delete <strong>{{ productToDelete?.name }}</strong>.
+                            This action cannot be undone.
+                        </p>
                     </v-card-text>
-                    <v-card-actions class="pa-6 pt-0">
+                    <v-card-actions class="modal-actions">
                         <v-spacer></v-spacer>
-                        <v-btn variant="text" @click="closeDeleteModal" size="large">Cancel</v-btn>
-                        <v-btn color="error" variant="elevated" @click="submitDelete" :loading="deleteLoading"
-                            size="large" class="elevation-2 text-white">
-                            <v-icon start>mdi-delete</v-icon>
+                        <v-btn variant="text" @click="closeDeleteModal">Cancel</v-btn>
+                        <v-btn color="error" variant="elevated" @click="submitDelete" :loading="deleteLoading">
                             Delete Product
                         </v-btn>
                     </v-card-actions>
                 </v-card>
             </v-dialog>
-
-        </v-container>
+        </div>
     </AuthenticatedLayout>
 </template>
 
@@ -496,76 +403,76 @@ import { ref, computed, watch } from 'vue';
 import { Link, useForm, router } from '@inertiajs/vue3';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 
-/**
- * Define Props
- * 
- * 
- */
 const props = defineProps({
     products: Object,
     categories: Array,
     filters: Object,
 });
 
-/**
- * Reactive Variables
- * 
- * 
- */
+// Reactive Variables
 const searchQuery = ref(props.filters?.search || '');
 const priceFilter = ref(props.filters?.price_range || null);
 const categoryFilter = ref(props.filters?.category_id || null);
 const statusFilter = ref(props.filters?.status || null);
 const sortBy = ref(props.filters?.sort || 'name');
 const sortDesc = ref(props.filters?.direction === 'desc');
-const itemsPerPage = ref(10);
 const loading = ref(false);
 const deleteLoading = ref(false);
-const tableDensity = ref('comfortable');
-const viewMode = ref('table');
+const viewMode = ref('grid');
 
-/**
- * Configuration Options
- * 
- * 
- */
-const itemsPerPageOptions = [{ value: 5, title: '5' }, { value: 10, title: '10' }, { value: 25, title: '25' }, { value: 50, title: '50' }, { value: -1, title: 'All' }];
-// Remove densityOptions since we're using button toggle now
-const priceRanges = [{ title: 'Under $10', value: 'under-10' }, { title: '$10 - $50', value: '10-50' }, { title: '$50 - $100', value: '50-100' }, { title: '$100 - $500', value: '100-500' }, { title: 'Over $500', value: 'over-500' },];
-const sortOptions = [{ title: 'Name', value: 'name' }, { title: 'Price', value: 'price' }, { title: 'Date Created', value: 'created_at' },];
-const statusOptions = [{ title: 'Active', value: 'active' }, { title: 'Inactive', value: 'inactive' },];
+// Configuration Options
+const priceRanges = [
+    { title: 'Under $10', value: 'under-10' },
+    { title: '$10 - $50', value: '10-50' },
+    { title: '$50 - $100', value: '50-100' },
+    { title: '$100 - $500', value: '100-500' },
+    { title: 'Over $500', value: 'over-500' },
+];
+
+const sortOptions = [
+    { title: 'Name', value: 'name' },
+    { title: 'Price', value: 'price' },
+    { title: 'Date Created', value: 'created_at' },
+];
+
+const statusOptions = [
+    { title: 'Active', value: 'active' },
+    { title: 'Inactive', value: 'inactive' },
+];
+
 const categoryOptions = computed(() => {
     if (!props.categories) return [];
     return props.categories.map(cat => ({ title: cat.name, value: cat.id }));
 });
-const headers = [{ title: 'Product', key: 'product', align: 'start', sortable: true, width: '30%' }, { title: 'Price', key: 'price', align: 'center', sortable: true, width: '10%' }, { title: 'Description', key: 'description', align: 'start', sortable: false, width: '25%' }, { title: 'Stock', key: 'stock_status', align: 'center', sortable: true, width: '10%' }, { title: 'Category', key: 'category', align: 'center', sortable: true, width: '10%' }, { title: 'Actions', key: 'actions', sortable: false, align: 'center', width: '15%' },];
-const tableSortBy = ref([{ key: 'name', order: 'asc' }]);
 
-/**
- * Modal method
- * 
- */
+// Modal State
 const isEditModalOpen = ref(false);
 const isDeleteModalOpen = ref(false);
 const productToDelete = ref(null);
 
-/**
- * Use Form
- * 
- * 
- */
-const editForm = useForm({ id: null, name: '', price: '', description: '', image_url: '', });
+// Use Form
+const editForm = useForm({
+    id: null,
+    name: '',
+    price: '',
+    description: '',
+});
 
-/**
- * Computed Properties for Stats & Filtering
- * 
- * 
- */
-// Remove currentHeaders since we only use one set of headers now
+// Computed Properties for Stats & Filtering
 const totalProducts = computed(() => props.products.data?.length || 0);
-const averagePrice = computed(() => { if (!totalProducts.value) return '0.00'; const total = props.products.data.reduce((sum, p) => sum + parseFloat(p.price), 0); return (total / totalProducts.value).toFixed(2); });
-const highestPrice = computed(() => { if (!totalProducts.value) return '0.00'; return Math.max(...props.products.data.map(p => parseFloat(p.price))).toFixed(2); });
-const lowestPrice = computed(() => { if (!totalProducts.value) return '0.00'; return Math.min(...props.products.data.map(p => parseFloat(p.price))).toFixed(2); });
+const averagePrice = computed(() => {
+    if (!totalProducts.value) return '0.00';
+    const total = props.products.data.reduce((sum, p) => sum + parseFloat(p.price), 0);
+    return (total / totalProducts.value).toFixed(2);
+});
+const highestPrice = computed(() => {
+    if (!totalProducts.value) return '0.00';
+    return Math.max(...props.products.data.map(p => parseFloat(p.price))).toFixed(2);
+});
+const lowestPrice = computed(() => {
+    if (!totalProducts.value) return '0.00';
+    return Math.min(...props.products.data.map(p => parseFloat(p.price))).toFixed(2);
+});
 const filteredProducts = computed(() => {
     return props.products.data || [];
 });
@@ -582,7 +489,6 @@ const applyFilters = () => {
         direction: sortDesc.value ? 'desc' : 'asc',
     };
 
-    // Remove empty filters
     Object.keys(filters).forEach(key => {
         if (!filters[key]) {
             delete filters[key];
@@ -610,182 +516,7 @@ watch([searchQuery, categoryFilter, priceFilter, statusFilter, sortBy, sortDesc]
     }, 300);
 });
 
-/**
- * Table Height
- * 
- * 
- */
-const tableHeight = computed(() => {
-    switch (tableDensity.value) {
-        case 'compact': return '450px';
-        case 'comfortable': return '550px';
-        default: return '650px';
-    }
-});
-
-/**
- * Get Product Cell Class
- * 
- * 
- */
-const getProductCellClass = computed(() => {
-    // Controls the vertical padding of the product cell
-    switch (tableDensity.value) {
-        case 'compact': return 'py-1';
-        case 'comfortable': return 'py-2';
-        default: return 'py-4';
-    }
-});
-
-/**
- * Get Avatar Size
- * 
- * 
- * 
- */
-const getAvatarSize = computed(() => {
-    switch (tableDensity.value) {
-        case 'compact': return 32;
-        case 'comfortable': return 40;
-        default: return 56;
-    }
-});
-
-/**
- * 
- * Get Product Name Class
- * 
- * 
- */
-const getProductNameClass = computed(() => {
-    // Controls the font size and weight of the product name
-    switch (tableDensity.value) {
-        case 'compact': return 'text-body-2 font-weight-bold text-black';
-        case 'comfortable': return 'text-subtitle-1 font-weight-bold text-black';
-        default: return 'text-h6 font-weight-bold text-black';
-    }
-});
-
-/**
- * Computed Properties for Product Details
- * 
- */
-const showProductDetails = computed(() => tableDensity.value !== 'compact');
-
-/**
- * Get price ship Size & Icon Size
- * 
- */
-const getPriceChipSize = computed(() => {
-    switch (tableDensity.value) {
-        case 'compact': return 'x-small';
-        case 'comfortable': return 'small';
-        default: return 'default';
-    }
-});
-
-/**
- * Get Price Icon Size
- * 
- * 
- */
-const getPriceIconSize = computed(() => {
-    switch (tableDensity.value) {
-        case 'compact': return 14;
-        case 'comfortable': return 16;
-        default: return 18;
-    }
-});
-
-/**
- * Get Description Class & Length
- * 
- */
-const getDescriptionClass = computed(() => {
-    switch (tableDensity.value) {
-        case 'compact': return 'text-caption text-grey-darken-1 mb-0';
-        default: return 'text-body-2 text-grey-darken-1 mb-0';
-    }
-});
-
-/**
- * Get Description Length
- * 
- * 
- */
-const getDescriptionLength = computed(() => {
-    switch (tableDensity.value) {
-        case 'compact': return 40;
-        case 'comfortable': return 70;
-        default: return 100;
-    }
-});
-
-/**
- * 
- * Get chip size & Action Button Size
- * 
- */
-const getChipSize = computed(() => {
-    // For Stock and Category chips
-    switch (tableDensity.value) {
-        case 'compact': return 'x-small';
-        case 'comfortable': return 'small';
-        default: return 'default';
-    }
-});
-
-/**
- * Get Action Button Size & Icon Size 
- * 
- * Computed
- * 
- */
-const getActionButtonSize = computed(() => {
-    switch (tableDensity.value) {
-        case 'compact': return 'x-small';
-        case 'comfortable': return 'small';
-        default: return 'small';
-    }
-});
-
-/**
- * Get Action size & Icon Size
- * 
- * Computed
- * 
- */
-const getActionIconSize = computed(() => {
-    switch (tableDensity.value) {
-        case 'compact': return 16;
-        case 'comfortable': return 18;
-        default: return 20;
-    }
-});
-
-/**
- * This is the new computed property you requested, pro!
- * 
- * 
- */
-const getActionClass = computed(() => {
-    // Controls the spacing between action buttons
-    switch (tableDensity.value) {
-        case 'compact': return 'gap-1';
-        case 'comfortable': return 'gap-2';
-        default: return 'gap-2';
-    }
-});
-
-
-/**
- * Helper & Event Handler Functions
- * 
- * @param dateString 
- * @returns 
- * 
- * 
- */
+// Helper Functions
 const formatDate = (dateString) => new Date(dateString).toLocaleDateString();
 const formatPrice = (price) => parseFloat(price).toFixed(2);
 const truncateText = (text, length) => (text && text.length > length) ? text.substring(0, length) + '...' : text;
@@ -796,40 +527,19 @@ const getPriceColor = (price) => {
     return 'success';
 };
 
-/**
- * Get stock status 
- * 
- * @param stock 
- * @returns 
- * 
- * 
- */
 const getStockStatus = (stock) => {
     if (stock <= 0) return 'Out of Stock';
     if (stock < 10) return 'Low Stock';
     return 'In Stock';
 };
 
-/**
- * 
- * Get Stock Color
- * 
- * @param stock 
- * @returns 
- * 
- * 
- */
 const getStockColor = (stock) => {
     if (stock <= 0) return 'error';
     if (stock < 10) return 'warning';
     return 'success';
 };
 
-/**
- * View emit product
- * 
- * 
- */
+// Event Handlers
 const clearFilters = () => {
     searchQuery.value = '';
     priceFilter.value = null;
@@ -843,23 +553,23 @@ const clearFilters = () => {
         preserveScroll: true,
     });
 };
+
 const viewProduct = (product) => router.get(route('products.show', product.id));
+
 const openEditModal = (product) => {
     editForm.reset();
     editForm.id = product.id;
     editForm.name = product.name;
     editForm.price = product.price;
     editForm.description = product.description;
-    editForm.image_url = product.image_url;
     isEditModalOpen.value = true;
 };
 
-/**
- * Close Emit modal 
- * 
- * 
- */
-const closeEditModal = () => { isEditModalOpen.value = false; editForm.reset(); };
+const closeEditModal = () => {
+    isEditModalOpen.value = false;
+    editForm.reset();
+};
+
 const submitEdit = () => {
     editForm.put(route('products.update', editForm.id), {
         preserveScroll: true,
@@ -867,16 +577,16 @@ const submitEdit = () => {
     });
 };
 
-/**
- * Handle delete modal
- * 
- * @param product 
- * @returns 
- * 
- * 
- */
-const openDeleteModal = (product) => { productToDelete.value = product; isDeleteModalOpen.value = true; };
-const closeDeleteModal = () => { isDeleteModalOpen.value = false; productToDelete.value = null; };
+const openDeleteModal = (product) => {
+    productToDelete.value = product;
+    isDeleteModalOpen.value = true;
+};
+
+const closeDeleteModal = () => {
+    isDeleteModalOpen.value = false;
+    productToDelete.value = null;
+};
+
 const submitDelete = () => {
     if (!productToDelete.value) return;
     deleteLoading.value = true;
@@ -889,218 +599,519 @@ const submitDelete = () => {
 </script>
 
 <style scoped>
-/* Cool, smooth styles with no shadows */
-.v-btn {
+.products-page {
+    min-height: 100vh;
+    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+    padding: 24px;
+}
+
+/* Header Styles */
+.page-header {
+    background: white;
+    border-radius: 16px;
+    padding: 32px;
+    margin-bottom: 24px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+}
+
+.header-content {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 16px;
+}
+
+.header-info {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.header-icon {
+    width: 60px;
+    height: 60px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.page-title {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #2d3748;
+    margin: 0;
+    margin-bottom: 4px;
+}
+
+.page-subtitle {
+    color: #718096;
+    margin: 0;
+    font-size: 1rem;
+}
+
+.create-btn {
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+    border-radius: 12px !important;
+}
+
+/* Alerts */
+.alerts-container {
+    margin-bottom: 24px;
+}
+
+.alert-success,
+.alert-error {
+    border-radius: 12px;
+    margin-bottom: 16px;
+}
+
+/* Stats Section */
+.stats-section {
+    margin-bottom: 24px;
+}
+
+.stat-card {
+    background: white;
+    border-radius: 16px;
+    padding: 24px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    transition: all 0.3s ease;
+    height: 100%;
+}
+
+.stat-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+}
+
+.stat-icon {
+    width: 50px;
+    height: 50px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+}
+
+.stat-icon.primary { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+.stat-icon.success { background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); }
+.stat-icon.warning { background: linear-gradient(135deg, #fa709a 0%, #fee140 100%); }
+.stat-icon.info { background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%); }
+
+.stat-content {
+    flex: 1;
+}
+
+.stat-value {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #2d3748;
+    margin-bottom: 4px;
+}
+
+.stat-label {
+    color: #718096;
+    font-size: 0.875rem;
+}
+
+/* Filters Section */
+.filters-section {
+    background: white;
+    border-radius: 16px;
+    padding: 24px;
+    margin-bottom: 24px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+}
+
+.filters-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 20px;
+}
+
+.filters-title {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #2d3748;
+    margin: 0;
+    display: flex;
+    align-items: center;
+}
+
+.clear-btn {
     border-radius: 8px !important;
-    text-transform: none !important;
-    font-weight: 500 !important;
-    transition: all 0.3s ease !important;
 }
 
-.v-chip {
-    border-radius: 6px !important;
-    font-weight: 500 !important;
-    transition: all 0.3s ease !important;
+.filters-content {
+    margin-top: 16px;
 }
 
-.v-card {
-    border: 1px solid #e0e0e0 !important;
-    box-shadow: none !important;
-    transition: all 0.3s ease !important;
+.search-field {
+    border-radius: 12px;
 }
 
-.v-card:hover {
-    border-color: #d0d0d0 !important;
-    box-shadow: none !important;
-    transform: translateY(-1px);
+/* Products Section */
+.products-section {
+    background: white;
+    border-radius: 16px;
+    padding: 24px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
 }
 
-/* Remove all elevations */
-.elevation-0 {
-    box-shadow: none !important;
+.products-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 24px;
+    flex-wrap: wrap;
+    gap: 16px;
 }
 
-/* Cool filter styling */
-.filters-card {
-    overflow: hidden;
+.products-info {
+    display: flex;
+    align-items: center;
+    gap: 12px;
 }
 
-.filter-row {
-    transition: all 0.3s ease;
+.products-title {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #2d3748;
+    margin: 0;
+    display: flex;
+    align-items: center;
 }
 
-.filter-input {
-    transition: all 0.3s ease;
+.view-controls {
+    border-radius: 8px;
 }
 
-.filter-input:focus-within {
-    transform: translateY(-2px);
+/* Grid View */
+.products-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 20px;
 }
 
-.sort-toggle {
-    border-radius: 8px !important;
-    transition: all 0.3s ease;
-}
-
-.density-toggle {
-    border-radius: 8px !important;
-    transition: all 0.3s ease;
-}
-
-.view-toggle {
-    border-radius: 8px !important;
-    transition: all 0.3s ease;
-}
-
-/* Table styling */
-.table-card {
-    overflow: hidden;
-}
-
-.v-data-table {
-    border-radius: 0 0 8px 8px;
-    box-shadow: none !important;
-}
-
-.v-data-table .v-data-table__tr:hover {
-    background: #f5f5f5 !important;
-    transform: translateX(2px);
-    transition: all 0.3s ease;
-}
-
-/* Skeleton loading animations */
-.v-skeleton-loader {
-    border-radius: 8px !important;
-    animation: pulse 1.5s ease-in-out infinite;
-}
-
-@keyframes pulse {
-    0% {
-        opacity: 1;
-    }
-    50% {
-        opacity: 0.5;
-    }
-    100% {
-        opacity: 1;
-    }
-}
-
-/* Gap Utilities */
-.gap-1 {
-    gap: 0.25rem;
-}
-
-.gap-2 {
-    gap: 0.5rem;
-}
-
-/* Smooth transitions for all interactive elements */
-.v-btn-toggle .v-btn {
-    transition: all 0.3s ease !important;
-}
-
-.v-btn-toggle .v-btn:hover {
-    background: rgba(25, 118, 210, 0.1) !important;
-}
-
-.v-text-field:focus-within,
-.v-select:focus-within {
-    transform: translateY(-1px);
-}
-
-/* Product Card Styles */
 .product-card {
-    border: 1px solid #e0e0e0 !important;
-    box-shadow: none !important;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    background: white;
+    border-radius: 16px;
     overflow: hidden;
+    transition: all 0.3s ease;
+    border: 1px solid #e2e8f0;
 }
 
 .product-card:hover {
-    border-color: #d0d0d0 !important;
-    transform: translateY(-4px);
-    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15) !important;
+    transform: translateY(-8px);
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.15);
+    border-color: #cbd5e0;
 }
 
-.product-image-container {
+.product-image {
     position: relative;
     overflow: hidden;
 }
 
-.product-card-image {
-    transition: transform 0.3s ease;
-}
-
-.product-card:hover .product-card-image {
-    transform: scale(1.05);
-}
-
-.product-overlay {
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: rgba(0, 0, 0, 0.6);
+.image-placeholder {
+    width: 100%;
+    height: 200px;
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 8px;
-    opacity: 0;
-    transition: opacity 0.3s ease;
+    background: #f7fafc;
 }
 
-.product-card:hover .product-overlay {
+.product-actions {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    opacity: 0;
+    transition: all 0.3s ease;
+}
+
+.product-card:hover .product-actions {
     opacity: 1;
 }
 
-.overlay-btn {
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3) !important;
-    transition: all 0.2s ease !important;
+.product-content {
+    padding: 20px;
 }
 
-.overlay-btn:hover {
-    transform: scale(1.1);
+.product-badges {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 12px;
+}
+
+.stock-badge,
+.price-badge {
+    color: white !important;
+    font-weight: 600;
 }
 
 .product-name {
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: #2d3748;
+    margin: 0 0 8px 0;
+    line-height: 1.4;
     display: -webkit-box;
     -webkit-line-clamp: 2;
     -webkit-box-orient: vertical;
     overflow: hidden;
-    line-height: 1.4;
-    height: 2.8em;
 }
 
 .product-description {
+    color: #718096;
+    margin: 0 0 12px 0;
+    line-height: 1.5;
     display: -webkit-box;
     -webkit-line-clamp: 2;
     -webkit-box-orient: vertical;
     overflow: hidden;
-    line-height: 1.4;
-    height: 2.8em;
 }
 
-/* Responsive adjustments for cards */
-@media (max-width: 960px) {
-    .product-card:hover {
-        transform: translateY(-2px);
+.product-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.875rem;
+}
+
+.product-category {
+    color: #4a5568;
+    font-weight: 500;
+}
+
+.product-id {
+    color: #a0aec0;
+}
+
+/* List View */
+.products-list {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.product-list-item {
+    background: #f7fafc;
+    border-radius: 12px;
+    padding: 20px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    transition: all 0.3s ease;
+    border: 1px solid #e2e8f0;
+}
+
+.product-list-item:hover {
+    background: white;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    transform: translateX(4px);
+}
+
+.list-item-avatar {
+    flex-shrink: 0;
+}
+
+.list-item-content {
+    flex: 1;
+    min-width: 0;
+}
+
+.list-item-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 8px;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.list-item-title {
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: #2d3748;
+    margin: 0;
+}
+
+.list-item-badges {
+    display: flex;
+    gap: 8px;
+}
+
+.price-chip {
+    color: white !important;
+    font-weight: 600;
+}
+
+.list-item-description {
+    color: #718096;
+    margin: 0 0 8px 0;
+    line-height: 1.5;
+}
+
+.list-item-meta {
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+}
+
+.meta-item {
+    font-size: 0.875rem;
+    color: #a0aec0;
+}
+
+.list-item-actions {
+    display: flex;
+    gap: 4px;
+    flex-shrink: 0;
+}
+
+/* Empty State */
+.empty-state {
+    text-align: center;
+    padding: 60px 20px;
+    grid-column: 1 / -1;
+}
+
+.empty-icon {
+    margin-bottom: 20px;
+}
+
+.empty-title {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: #2d3748;
+    margin: 0 0 8px 0;
+}
+
+.empty-description {
+    color: #718096;
+    margin: 0 0 24px 0;
+}
+
+/* Skeletons */
+.product-skeleton,
+.list-skeleton {
+    border-radius: 16px;
+    overflow: hidden;
+}
+
+/* Modal Styles */
+.modal-card {
+    border-radius: 16px !important;
+    overflow: hidden;
+}
+
+.modal-header {
+    background: #f7fafc;
+    border-bottom: 1px solid #e2e8f0;
+    padding: 20px 24px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+}
+
+.modal-header.error {
+    background: #fed7d7;
+    color: #e53e3e;
+}
+
+.modal-content {
+    padding: 24px;
+}
+
+.modal-actions {
+    padding: 16px 24px;
+    border-top: 1px solid #e2e8f0;
+}
+
+.delete-icon {
+    margin-bottom: 16px;
+}
+
+.delete-title {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #2d3748;
+    margin: 0 0 8px 0;
+}
+
+.delete-description {
+    color: #718096;
+    margin: 0;
+    line-height: 1.5;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .products-page {
+        padding: 16px;
     }
-    
-    .product-overlay {
-        opacity: 1;
-        background: rgba(0, 0, 0, 0.4);
+
+    .page-header {
+        padding: 20px;
+    }
+
+    .header-content {
+        flex-direction: column;
+        align-items: stretch;
+        text-align: center;
+    }
+
+    .products-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .product-list-item {
+        flex-direction: column;
+        align-items: stretch;
+        text-align: center;
+    }
+
+    .list-item-header {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .list-item-meta {
+        justify-content: center;
+    }
+
+    .products-header {
+        flex-direction: column;
+        align-items: stretch;
     }
 }
 
-@media (max-width: 600px) {
-    .product-card:hover {
-        transform: none;
+@media (max-width: 480px) {
+    .page-title {
+        font-size: 1.5rem;
     }
-    
-    .product-card:hover .product-card-image {
-        transform: scale(1.02);
+
+    .stat-card {
+        padding: 16px;
+    }
+
+    .filters-section {
+        padding: 16px;
+    }
+
+    .products-section {
+        padding: 16px;
     }
 }
 </style>
