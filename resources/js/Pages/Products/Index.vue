@@ -210,20 +210,31 @@
                             </v-chip>
                         </template>
                     </div>
-                    <v-btn-toggle v-model="tableDensity" variant="outlined" size="small" class="density-toggle">
-                        <v-btn value="compact" icon="mdi-view-compact" size="small">
-                            <v-tooltip activator="parent">Compact</v-tooltip>
-                        </v-btn>
-                        <v-btn value="comfortable" icon="mdi-view-comfortable" size="small">
-                            <v-tooltip activator="parent">Comfortable</v-tooltip>
-                        </v-btn>
-                        <v-btn value="default" icon="mdi-view-module" size="small">
-                            <v-tooltip activator="parent">Default</v-tooltip>
-                        </v-btn>
-                    </v-btn-toggle>
+                    <div class="d-flex align-center gap-2">
+                        <v-btn-toggle v-model="viewMode" variant="outlined" size="small" class="view-toggle me-2">
+                            <v-btn value="table" icon="mdi-table" size="small">
+                                <v-tooltip activator="parent">Table View</v-tooltip>
+                            </v-btn>
+                            <v-btn value="cards" icon="mdi-view-grid" size="small">
+                                <v-tooltip activator="parent">Card View</v-tooltip>
+                            </v-btn>
+                        </v-btn-toggle>
+                        <v-btn-toggle v-model="tableDensity" variant="outlined" size="small" class="density-toggle">
+                            <v-btn value="compact" icon="mdi-view-compact" size="small">
+                                <v-tooltip activator="parent">Compact</v-tooltip>
+                            </v-btn>
+                            <v-btn value="comfortable" icon="mdi-view-comfortable" size="small">
+                                <v-tooltip activator="parent">Comfortable</v-tooltip>
+                            </v-btn>
+                            <v-btn value="default" icon="mdi-view-module" size="small">
+                                <v-tooltip activator="parent">Default</v-tooltip>
+                            </v-btn>
+                        </v-btn-toggle>
+                    </div>
                 </v-card-title>
 
-                <v-data-table v-model:search="searchQuery" v-model:sort-by="tableSortBy" :headers="headers"
+                <!-- Table View -->
+                <v-data-table v-if="viewMode === 'table'" v-model:search="searchQuery" v-model:sort-by="tableSortBy" :headers="headers"
                     :items="filteredProducts" :items-per-page="itemsPerPage" :loading="loading" :density="tableDensity"
                     :items-per-page-options="itemsPerPageOptions" class="elevation-0" hover
                     :height="tableHeight">
@@ -321,6 +332,86 @@
                         </div>
                     </template>
                 </v-data-table>
+
+                <!-- Card View -->
+                <div v-else-if="viewMode === 'cards'" class="pa-4">
+                    <template v-if="loading">
+                        <v-row>
+                            <v-col v-for="n in 8" :key="n" cols="12" sm="6" md="4" lg="3">
+                                <v-skeleton-loader type="card" class="mb-4"></v-skeleton-loader>
+                            </v-col>
+                        </v-row>
+                    </template>
+                    <template v-else-if="filteredProducts.length">
+                        <v-row>
+                            <v-col v-for="product in filteredProducts" :key="product.id" cols="12" sm="6" md="4" lg="3">
+                                <v-card class="product-card hover-card" rounded="lg" elevation="0">
+                                    <div class="product-image-container">
+                                        <v-img :src="product.imageUrl || '/placeholder-image.jpg'" 
+                                               :alt="product.name" 
+                                               aspect-ratio="1" 
+                                               cover 
+                                               class="product-card-image">
+                                            <template #placeholder>
+                                                <div class="d-flex align-center justify-center fill-height">
+                                                    <v-icon icon="mdi-package-variant" size="48" color="grey-lighten-2"></v-icon>
+                                                </div>
+                                            </template>
+                                        </v-img>
+                                        <div class="product-overlay">
+                                            <v-btn icon="mdi-eye" variant="flat" color="white" size="small" 
+                                                   @click="viewProduct(product)" class="overlay-btn">
+                                            </v-btn>
+                                            <v-btn icon="mdi-pencil" variant="flat" color="primary" size="small" 
+                                                   @click="openEditModal(product)" class="overlay-btn">
+                                            </v-btn>
+                                            <v-btn icon="mdi-delete" variant="flat" color="error" size="small" 
+                                                   @click="openDeleteModal(product)" class="overlay-btn">
+                                            </v-btn>
+                                        </div>
+                                    </div>
+                                    <v-card-text class="pa-4">
+                                        <div class="d-flex align-center justify-space-between mb-2">
+                                            <v-chip :color="getStockColor(product.quantity || 0)" 
+                                                    variant="tonal" size="small" class="font-weight-medium">
+                                                {{ getStockStatus(product.quantity || 0) }}
+                                            </v-chip>
+                                            <v-chip :color="getPriceColor(product.price)" 
+                                                    variant="flat" size="small" class="font-weight-bold text-white">
+                                                <v-icon start icon="mdi-currency-usd" size="14"></v-icon>
+                                                {{ formatPrice(product.price) }}
+                                            </v-chip>
+                                        </div>
+                                        <h3 class="text-subtitle-1 font-weight-bold mb-1 product-name">
+                                            {{ product.name }}
+                                        </h3>
+                                        <p class="text-body-2 text-grey-darken-1 mb-2 product-description">
+                                            {{ truncateText(product.description, 80) }}
+                                        </p>
+                                        <div class="d-flex align-center justify-space-between">
+                                            <v-chip color="blue-grey" variant="outlined" size="small">
+                                                {{ product.category || 'No Category' }}
+                                            </v-chip>
+                                            <span class="text-caption text-grey-darken-1">
+                                                ID: {{ product.id }}
+                                            </span>
+                                        </div>
+                                    </v-card-text>
+                                </v-card>
+                            </v-col>
+                        </v-row>
+                    </template>
+                    <template v-else>
+                        <div class="text-center py-12">
+                            <v-icon size="64" color="grey-lighten-1" class="mb-4">mdi-magnify-close</v-icon>
+                            <h3 class="text-h6 text-black mb-2">No Products Found</h3>
+                            <p class="text-body-2 text-grey-darken-1">Your search or filter returned no results.</p>
+                            <v-btn color="black" variant="elevated" @click="clearFilters" class="mt-4">
+                                Clear Filters & Search
+                            </v-btn>
+                        </div>
+                    </template>
+                </div>
             </v-card>
             <!-- END OF MODIFIED SECTION -->
 
@@ -431,6 +522,7 @@ const itemsPerPage = ref(10);
 const loading = ref(false);
 const deleteLoading = ref(false);
 const tableDensity = ref('comfortable');
+const viewMode = ref('table');
 
 /**
  * Configuration Options
@@ -855,6 +947,11 @@ const submitDelete = () => {
     transition: all 0.3s ease;
 }
 
+.view-toggle {
+    border-radius: 8px !important;
+    transition: all 0.3s ease;
+}
+
 /* Table styling */
 .table-card {
     overflow: hidden;
@@ -910,5 +1007,100 @@ const submitDelete = () => {
 .v-text-field:focus-within,
 .v-select:focus-within {
     transform: translateY(-1px);
+}
+
+/* Product Card Styles */
+.product-card {
+    border: 1px solid #e0e0e0 !important;
+    box-shadow: none !important;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    overflow: hidden;
+}
+
+.product-card:hover {
+    border-color: #d0d0d0 !important;
+    transform: translateY(-4px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15) !important;
+}
+
+.product-image-container {
+    position: relative;
+    overflow: hidden;
+}
+
+.product-card-image {
+    transition: transform 0.3s ease;
+}
+
+.product-card:hover .product-card-image {
+    transform: scale(1.05);
+}
+
+.product-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.6);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.product-card:hover .product-overlay {
+    opacity: 1;
+}
+
+.overlay-btn {
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3) !important;
+    transition: all 0.2s ease !important;
+}
+
+.overlay-btn:hover {
+    transform: scale(1.1);
+}
+
+.product-name {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    line-height: 1.4;
+    height: 2.8em;
+}
+
+.product-description {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    line-height: 1.4;
+    height: 2.8em;
+}
+
+/* Responsive adjustments for cards */
+@media (max-width: 960px) {
+    .product-card:hover {
+        transform: translateY(-2px);
+    }
+    
+    .product-overlay {
+        opacity: 1;
+        background: rgba(0, 0, 0, 0.4);
+    }
+}
+
+@media (max-width: 600px) {
+    .product-card:hover {
+        transform: none;
+    }
+    
+    .product-card:hover .product-card-image {
+        transform: scale(1.02);
+    }
 }
 </style>

@@ -1,7 +1,8 @@
 <template>
-    <div class="admin-product-view">
-        <!-- Header Section -->
-        <v-card class="mb-6 hover-card" elevation="2">
+    <AuthenticatedLayout title="Product Details">
+        <v-container fluid class="py-6">
+            <!-- Header Section -->
+            <v-card class="mb-6 hover-card elevation-0" rounded="lg">
             <v-card-title class="d-flex align-center justify-space-between">
                 <div class="d-flex align-center">
                     <v-btn icon variant="text" @click="handleCallBack" class="mr-3">
@@ -22,7 +23,7 @@
             <!-- Left Column - Product Image & Basic Info -->
             <v-col cols="12" md="5">
                 <!-- Product Image -->
-                <v-card class="mb-4 hover-card hover-lift" elevation="2">
+                <v-card class="mb-4 hover-card hover-lift elevation-0" rounded="lg">
                     <v-card-title class="pb-2">
                         <v-icon start>mdi-image</v-icon>
                         Product Image
@@ -59,7 +60,7 @@
             <!-- Right Column - Detailed Information -->
             <v-col cols="12" md="7">
                 <!-- Product Information -->
-                <v-card class="mb-4 hover-card hover-glow" elevation="2">
+                <v-card class="mb-4 hover-card hover-glow elevation-0" rounded="lg">
                     <v-card-title>
                         <v-icon start>mdi-information</v-icon>
                         Product Information
@@ -118,7 +119,7 @@
                 </v-card>
 
                 <!-- Stock & Inventory -->
-                <v-card class="mb-4 hover-card hover-tilt" elevation="2">
+                <v-card class="mb-4 hover-card hover-tilt elevation-0" rounded="lg">
                     <v-card-title>
                         <v-icon start>mdi-package-variant</v-icon>
                         Stock & Inventory
@@ -153,7 +154,7 @@
                 </v-card>
 
                 <!-- Quick Stats -->
-                <v-card class="hover-card hover-scale" elevation="2">
+                <v-card class="hover-card hover-scale elevation-0" rounded="lg">
                     <v-card-title>
                         <v-icon start>mdi-chart-box</v-icon>
                         Quick Stats
@@ -197,7 +198,7 @@
                 </v-card>
 
                 <!-- Features -->
-                <v-card v-if="product.features && product.features.length" class="hover-card hover-pulse" elevation="2">
+                <v-card v-if="product.features && product.features.length" class="hover-card hover-pulse elevation-0" rounded="lg">
                     <v-card-title>
                         <v-icon start>mdi-star</v-icon>
                         Features
@@ -224,12 +225,14 @@
                 </v-btn>
             </template>
         </v-snackbar>
-    </div>
+        </v-container>
+    </AuthenticatedLayout>
 </template>
 
 <script setup>
 import { computed, reactive } from 'vue'
 import { router } from '@inertiajs/vue3'
+import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue'
 
 /**
  * Props Definition
@@ -405,11 +408,6 @@ const handleCallBack = () => {
 </script>
 
 <style scoped>
-.admin-product-view {
-    padding: 24px;
-    background-color: #f5f5f5;
-    min-height: 100vh;
-}
 
 .image-container {
     position: relative;
@@ -447,10 +445,17 @@ const handleCallBack = () => {
 
 .v-card {
     border-radius: 12px;
+    border: 1px solid #e0e0e0 !important;
+    box-shadow: none !important;
+}
+
+.v-card:hover {
+    border-color: #d0d0d0 !important;
 }
 
 .v-card-title {
-    background-color: rgba(0, 0, 0, 0.02);
+    background-color: #f8f9fa;
+    border-bottom: 1px solid #e0e0e0;
     font-weight: 600;
 }
 
