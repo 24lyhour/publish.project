@@ -23,19 +23,36 @@ class CategoryTransform
     public static function single(Category $category): array
     {
         return [
+            // Basic properties
             'id' => $category->id,
             'name' => $category->name,
             'description' => $category->description,
-            'slug' => $category->slug ?? null,
+            'type' => $category->type,
+            'menu_id' => $category->menu_id,
+            'price_sale' => static::formatPrice($category->price_sale),
             'status' => $category->status ?? 'active',
-            'sort_order' => $category->sort_order ?? 0,
-            'products_count' => $category->products_count ?? 0,
+
+            // Relationships
+            'menu' => static::transformMenu($category->menu),
+            'products_count' => $category->products()->count(),
+
+            // Computed properties
+            'imageUrl' => static::getImageUrl($category),
+            'formattedPriceSale' => static::getFormattedPrice($category->price_sale),
+            'statusColor' => static::getStatusColor($category->status),
+            'menuName' => static::getMenuName($category),
+
+            // Metadata
             'created_at' => $category->created_at,
             'updated_at' => $category->updated_at,
             'created_at_formatted' => static::formatDate($category->created_at),
             'updated_at_formatted' => static::formatDate($category->updated_at),
-            'statusColor' => static::getStatusColor($category->status),
-            'displayName' => static::getDisplayName($category)
+
+            // UI helpers
+            'displayName' => static::getDisplayName($category),
+            'shortDescription' => static::getShortDescription($category->description),
+            'badges' => static::getBadges($category),
+            'actions' => static::getAvailableActions($category)
         ];
     }
 
@@ -88,6 +105,61 @@ class CategoryTransform
     // Helper methods
 
     /**
+     * Format price for display
+     */
+    protected static function formatPrice($price): string
+    {
+        if (!$price) return '0.00';
+        return number_format((float)$price, 2, '.', '');
+    }
+
+    /**
+     * Get formatted price with currency
+     */
+    protected static function getFormattedPrice($price): string
+    {
+        return '$' . static::formatPrice($price);
+    }
+
+    /**
+     * Transform menu relationship
+     */
+    protected static function transformMenu($menu): ?array
+    {
+        if (!$menu) return null;
+        
+        return [
+            'id' => $menu->id,
+            'name' => $menu->name,
+            'description' => $menu->description ?? null
+        ];
+    }
+
+    /**
+     * Get menu name
+     */
+    protected static function getMenuName(Category $category): string
+    {
+        return $category->menu?->name ?? 'No Menu';
+    }
+
+    /**
+     * Get image URL
+     */
+    protected static function getImageUrl(Category $category): ?string
+    {
+        if (!$category->imageUrl) return null;
+
+        // If it's a full URL, return as is
+        if (str_starts_with($category->imageUrl, 'http')) {
+            return $category->imageUrl;
+        }
+
+        // Otherwise, construct the URL
+        return asset("storage/categories/{$category->imageUrl}");
+    }
+
+    /**
      * Get status color for UI
      */
     protected static function getStatusColor($status): string
@@ -121,5 +193,78 @@ class CategoryTransform
     protected static function getDisplayName(Category $category): string
     {
         return $category->name ?: 'Unnamed Category';
+    }
+
+    /**
+     * Get short description for lists
+     */
+    protected static function getShortDescription($description, int $length = 150): string
+    {
+        $desc = $description ?: 'No description available';
+        return strlen($desc) > $length ? substr($desc, 0, $length) . '...' : $desc;
+    }
+
+    /**
+     * Get badges for category display
+     */
+    protected static function getBadges(Category $category): array
+    {
+        $badges = [];
+
+        // Status badge
+        $badges[] = [
+            'text' => $category->status ?? 'active',
+            'color' => static::getStatusColor($category->status),
+            'icon' => ($category->status ?? 'active') === 'active' ? 'mdi-check-circle' : 'mdi-close-circle'
+        ];
+
+        // Products count badge
+        $productsCount = $category->products()->count();
+        $badges[] = [
+            'text' => $productsCount . ' Products',
+            'color' => $productsCount > 0 ? 'info' : 'grey',
+            'icon' => 'mdi-format-list-bulleted'
+        ];
+
+        // Price badge (if has sale price)
+        if ($category->price_sale) {
+            $badges[] = [
+                'text' => static::getFormattedPrice($category->price_sale),
+                'color' => 'primary',
+                'icon' => 'mdi-currency-usd'
+            ];
+        }
+
+        return $badges;
+    }
+
+    /**
+     * Get available actions for this category
+     */
+    protected static function getAvailableActions(Category $category): array
+    {
+        return [
+            [
+                'name' => 'view',
+                'label' => 'View',
+                'icon' => 'mdi-eye',
+                'color' => 'primary',
+                'route' => 'dashboard.categories.show'
+            ],
+            [
+                'name' => 'edit',
+                'label' => 'Edit',
+                'icon' => 'mdi-pencil',
+                'color' => 'warning',
+                'route' => 'dashboard.categories.edit'
+            ],
+            [
+                'name' => 'delete',
+                'label' => 'Delete',
+                'icon' => 'mdi-delete',
+                'color' => 'error',
+                'route' => 'dashboard.categories.delete'
+            ]
+        ];
     }
 }
