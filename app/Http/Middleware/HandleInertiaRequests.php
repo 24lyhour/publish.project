@@ -84,17 +84,7 @@ class HandleInertiaRequests extends Middleware
             ['style' => ['color' => 'black', 'marginTop' => '10px']]
         );
 
-        // app(MenuService::class)->addMenuItem(
-        //     'main',
-        //     'Menu',
-        //     'menu',
-        //     'menu.index',
-        //     'mdi-cart',
-        //     3,
-        //     'VIEW_ORDERS',
-        //                null,
-        //     ['style' => ['color' => 'black', 'marginTop' => '10px']]
-        // );
+      
 
         
         return parent::handle($request, $next);
