@@ -19,6 +19,8 @@ class CategoryFactory extends Factory
         return [
             'name' => fake()->words(2, true),
             'description' => fake()->sentence(),
+            'imageUrl' => fake()->imageUrl(640, 480, 'categories', true),
+            'status' => fake()->randomElement(['active', 'inactive']),
             'restaurant_id' => \App\Models\Restaurant::inRandomOrder()->first()?->id ?? \App\Models\Restaurant::factory()->create()->id,
         ];
     }

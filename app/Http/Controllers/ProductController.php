@@ -27,8 +27,6 @@ class ProductController extends Controller
             })
             ->paginate(10)
             ->withQueryString();
-            
-        // Transform products using ProductTransform
         $products = ProductTransform::paginated($products);
         
         return Inertia::render('Dashboard/Inertia/V1/Products/Index', [
@@ -48,7 +46,7 @@ class ProductController extends Controller
         return Inertia::modal('Dashboard/Inertia/V1/Products/Create')
             ->with([
                 'categories' => Category::all(['id', 'name']),
-            ])->baseRoute('dashboard.dashboard.products.index');
+            ])->baseRoute('products.index');
     }
 
     /**
@@ -61,7 +59,7 @@ class ProductController extends Controller
     {
         $product = Product::create($request->validated());
 
-        return redirect()->route('dashboard.products.index')
+        return redirect()->route('products.index')
             ->with('success', 'Product created successfully.');
     }
 
@@ -90,7 +88,7 @@ class ProductController extends Controller
             ->with([
                 'product' => ProductTransform::single($product),
                 'categories' => Category::all(['id', 'name']),
-            ])->baseRoute('dashboard.dashboard.products.index');
+            ])->baseRoute('products.index');
     }
 
     /**
@@ -104,7 +102,7 @@ class ProductController extends Controller
     {
         $product->update($request->validated());
 
-        return redirect()->route('dashboard.products.index')
+        return redirect()->route('products.index')
             ->with('success', 'Product updated successfully.');
     }
 
@@ -119,7 +117,7 @@ class ProductController extends Controller
         return Inertia::modal('Dashboard/Inertia/V1/Products/Delete')
             ->with([
                 'product' => ProductTransform::single($product),
-            ])->baseRoute('dashboard.dashboard.products.index');
+            ])->baseRoute('products.index');
     }
 
     /**
@@ -132,7 +130,7 @@ class ProductController extends Controller
     {
         $product->delete();
 
-        return redirect()->route('dashboard.products.index')
+        return redirect()->route('products.index')
             ->with('success', 'Product deleted successfully.');
     }
 

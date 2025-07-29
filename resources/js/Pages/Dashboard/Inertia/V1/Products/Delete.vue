@@ -96,9 +96,9 @@ const form = useForm({})
 
 // Methods
 const confirmDelete = () => {
-    form.delete(route('dashboard.products.destroy', props.product.id), {
+    form.delete(route('products.destroy', props.product.id), {
         onSuccess: () => {
-            router.get(route('dashboard.products.index'))
+            router.get(route('products.index'))
         },
         onError: (errors) => {
             console.error('Error deleting product:', errors)
@@ -107,7 +107,7 @@ const confirmDelete = () => {
 }
 
 const goBack = () => {
-    router.get(route('dashboard.products.index'))
+    router.get(route('products.index'))
 }
 
 const truncateText = (text, length) => {

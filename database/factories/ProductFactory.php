@@ -20,6 +20,10 @@ class ProductFactory extends Factory
             'name' => fake()->words(3, true),
             'description' => fake()->paragraph(),
             'price' => fake()->randomFloat(2, 10, 1000),
+            'status' => fake()->randomElement(['active', 'inactive']),
+            'imageUrl' => fake()->imageUrl(640, 480, 'products', true),
+            'sku' => fake()->unique()->bothify('SKU-#####'),
+            'stock' => fake()->numberBetween(0, 100),
             'category_id' => \App\Models\Category::inRandomOrder()->first()?->id ?? \App\Models\Category::factory()->create()->id,
         ];
     }

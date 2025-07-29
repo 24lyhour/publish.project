@@ -68,9 +68,9 @@ const form = useForm({
 
 // Methods
 const submitCallback = (setErrors) => {
-    form.post(route('dashboard.products.store'), {
+    form.post(route('products.store'), {
         onSuccess: () => {
-            router.get(route('dashboard.products.index'))
+            router.get(route('products.index'))
         },
         onError: (errors) => {
             if (setErrors) {
@@ -81,7 +81,7 @@ const submitCallback = (setErrors) => {
 }
 
 const goBack = () => {
-    router.get(route('dashboard.products.index'))
+    router.get(route('products.index'))
 }
 
 // Translation helper (you can implement this based on your i18n setup)

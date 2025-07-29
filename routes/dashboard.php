@@ -21,6 +21,27 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     
     /**
+     * Product Management Routes - Outside dashboard prefix to have clean names
+     */
+    Route::prefix('dashboard/management/products')->group(function () {
+        Route::resource('/', ProductController::class)
+            ->parameters(['' => 'product'])
+            ->names([
+                'index' => 'products.index',
+                'create' => 'products.create',
+                'store' => 'products.store',
+                'show' => 'products.show',
+                'edit' => 'products.edit',
+                'update' => 'products.update',
+                'destroy' => 'products.destroy'
+            ]);
+        
+        // Product delete route
+        Route::get('/{product}/delete', [ProductController::class, 'delete'])
+            ->name('products.delete');
+    });
+    
+    /**
      * Dashboard Management Routes
      * 
      * All management routes are prefixed with 'dashboard' for better organization
@@ -32,13 +53,11 @@ Route::middleware(['auth'])->group(function () {
      * @throws ResponseException
      * 
      * @see DashboardController
-     * @see ProductController
      * @see CategoryController
      * @see RestaurantController
      * @see MenuController
      * 
      * @link App\Http\Controllers\DashboardController
-     * @link App\Http\Controllers\ProductController
      * @link App\Http\Controllers\CategoryController
      * @link App\Http\Controllers\RestaurantController
      * @link App\Http\Controllers\MenuController
@@ -50,25 +69,6 @@ Route::middleware(['auth'])->group(function () {
          * Grouped routes for better organization and middleware management
          */
         Route::group(['prefix' => 'management'], function () {
-        
-            /**
-             * Product Management Group
-             */
-            Route::group(['prefix' => 'products'], function () {
-                Route::resource('/', ProductController::class)->parameters(['' => 'product'])->names([
-                    'index' => 'dashboard.products.index',
-                    'create' => 'dashboard.products.create', 
-                    'store' => 'dashboard.products.store',
-                    'show' => 'dashboard.products.show',
-                    'edit' => 'dashboard.products.edit',
-                    'update' => 'dashboard.products.update',
-                    'destroy' => 'dashboard.products.destroy'
-                ]);
-                
-                // Product delete route
-                Route::get('/{product}/delete', [ProductController::class, 'delete'])
-                    ->name('dashboard.products.delete');
-            });
             
             /**
              * Category Management Group
