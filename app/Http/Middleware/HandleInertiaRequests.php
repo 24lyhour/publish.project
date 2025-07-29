@@ -61,32 +61,99 @@ class HandleInertiaRequests extends Middleware
      */
     public function handle(Request $request, Closure $next)
     {
+        $menuService = app(MenuService::class);
 
-        app(MenuService::class)->addMenuItem(
-            'main',
-            'dashboard',
-            'Dashboard',
-            'dashboard',
-            'mdi-view-dashboard',
-            1,
-            'VIEW_DASHBOARD'
+        // Dashboard item
+        $menuService->addMenuItem(
+            menu: 'primary',
+            id: 'dashboard',
+            title: 'Dashboard',
+            url: 'dashboard',
+            icon: 'mdi-view-dashboard',
+            order: 10,
+            permissions: 'VIEW_DASHBOARD',
+            route: 'dashboard'
         );
 
-        app(MenuService::class)->addMenuItem(
-            'main',
-            'products',
-            'Products',
-            'products.index',
-            'mdi-package-variant-closed',
-            2,
-            'VIEW_PRODUCTS',
-            null,
-            ['style' => ['color' => 'black', 'marginTop' => '10px']]
+        // Menu group with submenus
+        $menuService->addMenuItem(
+            menu: 'primary',
+            id: 'menu',
+            title: 'Menu',
+            url: '#', // No direct URL since it has submenus
+            icon: 'mdi-menu',
+            order: 20,
+            permissions: 'MANAGE_MENU',
+            route: null, // No route for parent menu
+            hasSubmenu: true
         );
 
-      
+        // Add Products submenu
+        $menuService->addSubmenuItem(
+            menu: 'primary',
+            parentId: 'menu',
+            title: 'Products',
+            url: 'products.index',
+            order: 10,
+            permissions: 'MANAGE_PRODUCTS',
+            route: 'products.*',
+            icon: 'mdi-package-variant-closed'
+        );
 
-        
+        // Add Categories submenu
+        $menuService->addSubmenuItem(
+            menu: 'primary',
+            parentId: 'menu',
+            title: 'Categories',
+            url: 'dashboard.categories.index',
+            order: 20,
+            permissions: 'MANAGE_CATEGORIES',
+            route: 'dashboard.categories.*',
+            icon: 'mdi-tag-multiple'
+        );
+
+        // Add Restaurants submenu
+        $menuService->addSubmenuItem(
+            menu: 'primary',
+            parentId: 'menu',
+            title: 'Restaurants',
+            url: 'dashboard.restaurants.index',
+            order: 30,
+            permissions: 'MANAGE_RESTAURANTS',
+            route: 'dashboard.restaurants.*',
+            icon: 'mdi-store'
+        );
+
+        // Add Menus submenu (for restaurant menus)
+        $menuService->addSubmenuItem(
+            menu: 'primary',
+            parentId: 'menu',
+            title: 'Restaurant Menus',
+            url: 'dashboard.menus.index',
+            order: 40,
+            permissions: 'MANAGE_MENUS',
+            route: 'dashboard.menus.*',
+            icon: 'mdi-food'
+        );
+
+        // Example of popup menu item
+        $menuService->addMenuItem(
+            menu: 'primary',
+            id: 'quick_add',
+            title: 'Quick Add',
+            url: '#',
+            icon: 'mdi-plus-circle',
+            order: 30,
+            permissions: 'CREATE_ITEMS',
+            route: null,
+            hasSubmenu: false,
+            isPopup: true,
+            extra: [
+                'popup_type' => 'quick_add_modal',
+                'popup_size' => 'medium'
+            ]
+        );
+
         return parent::handle($request, $next);
     }
 }
