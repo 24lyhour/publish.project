@@ -82,7 +82,7 @@
 <script setup>
 import { router, useForm } from '@inertiajs/vue3'
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue'
-import SakalModal from '@/Shared/Modals/FormSakal/SakalModal.vue'
+import SakalModal from '@/Modals/SakalFormModal.vue'
 
 const props = defineProps({
     product: {

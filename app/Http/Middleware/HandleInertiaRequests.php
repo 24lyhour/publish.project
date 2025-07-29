@@ -84,14 +84,16 @@ class HandleInertiaRequests extends Middleware
             ['style' => ['color' => 'black', 'marginTop' => '10px']]
         );
 
-        // app(MenuService::class)->addSubmenuItem(
+        // app(MenuService::class)->addMenuItem(
         //     'main',
-        //     'products',
-        //     'Create Product',
-        //     '',
-        //     'mdi-plus',
-        //     1,
-        //     'CREATE_PRODUCT'
+        //     'Menu',
+        //     'menu',
+        //     'menu.index',
+        //     'mdi-cart',
+        //     3,
+        //     'VIEW_ORDERS',
+        //                null,
+        //     ['style' => ['color' => 'black', 'marginTop' => '10px']]
         // );
 
         

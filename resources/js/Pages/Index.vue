@@ -41,7 +41,7 @@
 
 <script setup>
 import { ref } from 'vue';
-import FlexibleModal from '@/Components/FlexibleModal.vue';
+import FlexibleModal from '@/Modals/FlexibleModal.vue';
 
 /**
  * Product Data

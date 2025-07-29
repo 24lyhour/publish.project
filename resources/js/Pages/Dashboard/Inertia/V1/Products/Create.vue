@@ -38,7 +38,7 @@
 import { reactive } from 'vue'
 import { router, useForm } from '@inertiajs/vue3'
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue'
-import SakalModal from '@/Shared/Modals/FormSakal/SakalModal.vue'
+import SakalModal from '@/Modals/SakalFormModal.vue'
 import ProductForm from '@/Components/Dashboard/Inertia/V1/ProductForm.vue'
 import { createProductSchema } from '@/Shared/Validation/ProductValidation.js'
 
