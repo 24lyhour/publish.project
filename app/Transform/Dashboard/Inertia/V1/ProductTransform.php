@@ -5,6 +5,7 @@ namespace App\Transform\Dashboard\Inertia\V1;
 use App\Models\Product;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Facades\Storage;
 
 /**
  * ProductTransform
@@ -184,15 +185,16 @@ class ProductTransform
      */
     protected static function getImageUrl(Product $product): ?string
     {
-        if (!$product->image) return null;
+        // Use imageUrl field from database, not image
+        if (!$product->imageUrl) return null;
 
         // If it's a full URL, return as is
-        if (str_starts_with($product->image, 'http')) {
-            return $product->image;
+        if (filter_var($product->imageUrl, FILTER_VALIDATE_URL)) {
+            return $product->imageUrl;
         }
 
-        // Otherwise, construct the URL
-        return asset("storage/products/{$product->image}");
+        // Otherwise, construct the URL using Storage facade
+        return Storage::url($product->imageUrl);
     }
 
     /**
@@ -306,14 +308,14 @@ class ProductTransform
                 'label' => 'View',
                 'icon' => 'mdi-eye',
                 'color' => 'primary',
-                'route' => 'dashboard.products.show'
+                'route' => 'products.show'
             ],
             [
                 'name' => 'edit',
                 'label' => 'Edit',
                 'icon' => 'mdi-pencil',
                 'color' => 'warning',
-                'route' => 'dashboard.products.edit'
+                'route' => 'products.edit'
             ]
         ];
 
@@ -324,7 +326,7 @@ class ProductTransform
                 'label' => 'Delete',
                 'icon' => 'mdi-delete',
                 'color' => 'error',
-                'route' => 'dashboard.products.delete'
+                'route' => 'products.delete'
             ];
         }
 

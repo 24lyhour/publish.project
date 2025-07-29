@@ -13,7 +13,7 @@
                             <p class="page-subtitle">Manage your product inventory with ease</p>
                         </div>
                     </div>
-                    <v-btn color="primary" size="large" variant="elevated" class="create-btn" @click="create">
+                    <v-btn color="primary" size="large" variant="elevated" class="create-btn" @click="createProduct">
                         <v-icon start>mdi-plus</v-icon>
                         Add Product
                     </v-btn>
