@@ -148,7 +148,7 @@ import { ref } from 'vue'
 import ProductFormModal from '../Modals/ProductFormModal.vue'
 import CategoryFormModal from '../Modals/CategoryFormModal.vue'
 import FlexibleModal from '../Modals/FlexibleModal.vue'
-import SakalModal from '../Modals/SakalModal.vue'
+import SakalModal from '../Shared/Modals/FormSakal/FlexibleModal.vue'
 
 // Modal visibility state
 const showProductModal = ref(false)

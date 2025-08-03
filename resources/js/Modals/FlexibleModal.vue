@@ -44,7 +44,7 @@
 </template>
 
 <script setup>
-import SakalModal from './SakalModal.vue'
+import SakalModal from '../UI/Base/Modal.vue'
 
 defineProps({
     show: {

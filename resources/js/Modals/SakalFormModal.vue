@@ -59,7 +59,7 @@
 <script setup>
 import { ref, computed, watch, onMounted } from 'vue'
 import { useForm } from '@inertiajs/vue3'
-import SakalModal from '../SakalModal.vue'
+import SakalModal from '../Shared/Modals/FormSakal/FlexibleModal.vue'
 
 const props = defineProps({
     show: {
