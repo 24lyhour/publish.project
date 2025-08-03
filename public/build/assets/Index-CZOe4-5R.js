@@ -1,1 +1,0 @@
-import{f as t,o as a,b as o,t as l}from"./app-DiTBgEXn.js";const _={__name:"Index",setup(n){const e={title:"Category "};return(r,s)=>(a(),t("div",null,[o("h1",null,"hello category "+l(e.title),1)]))}};export{_ as default};
