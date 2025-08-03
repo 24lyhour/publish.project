@@ -43,9 +43,11 @@ class ProductController extends Controller
      */
     public function create()
     {
-        return Inertia::modal('Dashboard/Inertia/V1/Products/Create',[
-        ])->baseRoute('products.create');
-       
+        $categories = Category::all(['id', 'name']);
+        
+        return Inertia::modal('Dashboard/Inertia/V1/Products/Create', [
+            'categories' => $categories,
+        ])->baseRoute('products.index');
     }
 
     /**
@@ -83,11 +85,10 @@ class ProductController extends Controller
      */
     public function edit(Product $product)
     {
-        return Inertia::modal('Dashboard/Inertia/V1/Products/Edit')
-            ->with([
-                'product' => ProductTransform::single($product),
-                'categories' => Category::all(['id', 'name']),
-            ])->baseRoute('products.index');
+        return Inertia::modal('Dashboard/Inertia/V1/Products/Edit', [
+            'product' => ProductTransform::single($product),
+            'categories' => Category::all(['id', 'name']),
+        ])->baseRoute('products.index');
     }
 
     /**
@@ -113,10 +114,9 @@ class ProductController extends Controller
      */
     public function delete(Product $product)
     {
-        return Inertia::modal('Dashboard/Inertia/V1/Products/Delete')
-            ->with([
-                'product' => ProductTransform::single($product),
-            ])->baseRoute('products.index');
+        return Inertia::modal('Dashboard/Inertia/V1/Products/Delete', [
+            'product' => ProductTransform::single($product),
+        ])->baseRoute('products.index');
     }
 
     /**
