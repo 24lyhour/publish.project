@@ -130,7 +130,7 @@ class CategoryTransform
         
         return [
             'id' => $menu->id,
-            'name' => $menu->name,
+            'name' => $menu->menu_name,
             'description' => $menu->description ?? null
         ];
     }
@@ -140,7 +140,7 @@ class CategoryTransform
      */
     protected static function getMenuName(Category $category): string
     {
-        return $category->menu?->name ?? 'No Menu';
+        return $category->menu?->menu_name ?? 'No Menu';
     }
 
     /**

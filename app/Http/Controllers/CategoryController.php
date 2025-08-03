@@ -35,9 +35,12 @@ class CategoryController extends Controller
             
         $categories = CategoryTransform::paginated($categories);
         
+        $menus = \App\Models\Menu::all(['id', 'menu_name']);
+        
         return Inertia::render('Dashboard/Inertia/V1/Categories/Index', [
             'categories' => $categories,
             'filters' => $filters,
+            'menus' => $menus,
         ]);
     }
 
@@ -48,8 +51,11 @@ class CategoryController extends Controller
      */
     public function create()
     {
-        return Inertia::modal('Dashboard/Inertia/V1/Categories/Create')
-            ->baseRoute('dashboard.categories.index');
+        $menus = \App\Models\Menu::all(['id', 'menu_name']);
+        
+        return Inertia::render('Dashboard/Inertia/V1/Categories/Create', [
+            'menus' => $menus,
+        ])->baseRoute('dashboard.categories.index');
     }
 
     /**
@@ -87,10 +93,12 @@ class CategoryController extends Controller
      */
     public function edit(Category $category)
     {
-        return Inertia::modal('Dashboard/Inertia/V1/Categories/Edit')
-            ->with([
-                'category' => CategoryTransform::single($category),
-            ])->baseRoute('dashboard.categories.index');
+        $menus = \App\Models\Menu::all(['id', 'menu_name']);
+        
+        return Inertia::render('Dashboard/Inertia/V1/Categories/Edit', [
+            'category' => CategoryTransform::single($category),
+            'menus' => $menus,
+        ]);
     }
 
     /**
@@ -110,17 +118,16 @@ class CategoryController extends Controller
 
 
     /**
-     * Show delete confirmation modal
+     * Show delete confirmation page
      * 
      * @param Category $category
      * @return \Inertia\Response
      */
     public function delete(Category $category)
     {
-        return Inertia::modal('Dashboard/Inertia/V1/Categories/Delete')
-            ->with([
-                'category' => CategoryTransform::single($category),
-            ])->baseRoute('dashboard.categories.index');
+        return Inertia::render('Dashboard/Inertia/V1/Categories/Delete', [
+            'category' => CategoryTransform::single($category),
+        ]);
     }
 
     /**

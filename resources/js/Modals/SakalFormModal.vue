@@ -5,7 +5,7 @@
         :subtitle="subtitle"
         :icon="icon"
         :icon-color="iconColor"
-        :max-width="maxWidth"
+        :max-width="modalWidth"
         :persistent="processing"
         :closable="!processing"
         :loading="processing"
@@ -33,24 +33,21 @@
                   :processing="processing" 
                   :submit="handleSubmit" 
                   :close="handleClose">
-                <v-spacer></v-spacer>
-                <v-btn 
-                    variant="outlined" 
+                <div class="flex-1"></div>
+                <Button 
+                    variant="outline" 
                     @click="handleCancel"
                     :disabled="processing"
-                    size="large">
+                    size="lg">
                     {{ cancelText }}
-                </v-btn>
-                <v-btn 
-                    :color="submitColor" 
-                    variant="elevated" 
+                </Button>
+                <Button 
                     @click="handleSubmit"
-                    :loading="processing"
-                    size="large"
+                    :disabled="processing"
+                    size="lg"
                     class="sakal-submit-btn">
-                    <v-icon v-if="submitIcon" start>{{ submitIcon }}</v-icon>
-                    {{ submitText }}
-                </v-btn>
+                    {{ processing ? 'Processing...' : submitText }}
+                </Button>
             </slot>
         </template>
     </SakalModal>
@@ -60,6 +57,7 @@
 import { ref, computed, watch, onMounted } from 'vue'
 import { useForm } from '@inertiajs/vue3'
 import SakalModal from '../Shared/Modals/FormSakal/FlexibleModal.vue'
+import { Button } from '@/Components/ui/button'
 
 const props = defineProps({
     show: {
@@ -85,6 +83,11 @@ const props = defineProps({
     maxWidth: {
         type: [String, Number],
         default: 700
+    },
+    size: {
+        type: String,
+        default: 'lg',
+        validator: value => ['sm', 'lg', 'xl', '2xl'].includes(value)
     },
     type: {
         type: String,
@@ -159,6 +162,15 @@ onMounted(() => {
 // Computed properties
 const processing = computed(() => form.processing)
 const errors = computed(() => form.errors)
+const modalWidth = computed(() => {
+    const sizeMap = {
+        sm: 600,
+        lg: 800,
+        xl: 1000,
+        '2xl': 1200
+    }
+    return sizeMap[props.size] || props.maxWidth
+})
 
 // Methods
 const resetForm = () => {

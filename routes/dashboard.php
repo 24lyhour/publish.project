@@ -83,6 +83,14 @@ Route::middleware(['auth'])->group(function () {
                     'update' => 'categories.update',
                     'destroy' => 'categories.destroy'
                 ]);
+                
+                // Category delete confirmation route
+                Route::get('category/create', [CategoryController::class, 'create'])
+                ->name('categories.create');
+                Route::get('category/edit', [CategoryController::class, 'edit'])
+                ->name('categories.edit');
+                Route::get('/{category}/delete', [CategoryController::class, 'delete'])
+                    ->name('categories.delete');
             });
             
             /**

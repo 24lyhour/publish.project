@@ -5,7 +5,7 @@
         :subtitle="subtitle"
         :icon="icon"
         :icon-color="iconColor"
-        :max-width="maxWidth"
+        :max-width="modalWidth"
         :type="type"
         @close="$emit('close')">
         
@@ -24,19 +24,18 @@
             <slot name="footer">
                 <!-- Default footer with cancel/confirm buttons -->
                 <div class="default-footer">
-                    <v-btn 
-                        variant="outlined" 
+                    <Button 
+                        variant="outline" 
                         @click="$emit('cancel')"
                         :disabled="processing">
                         Cancel
-                    </v-btn>
-                    <v-btn 
-                        :color="confirmColor" 
+                    </Button>
+                    <Button 
                         @click="$emit('confirm')"
-                        :loading="processing"
-                        :disabled="!canConfirm">
-                        {{ confirmText }}
-                    </v-btn>
+                        :disabled="!canConfirm || processing"
+                        :class="{ 'opacity-50': processing }">
+                        {{ processing ? 'Processing...' : confirmText }}
+                    </Button>
                 </div>
             </slot>
         </template>
@@ -44,9 +43,13 @@
 </template>
 
 <script setup>
+import { computed } from 'vue'
 import SakalModal from '../UI/Base/Modal.vue'
+import { Button } from '@/Components/ui/button'
 
-defineProps({
+defineEmits(['close', 'cancel', 'confirm'])
+
+const props = defineProps({
     show: {
         type: Boolean,
         default: false
@@ -71,6 +74,11 @@ defineProps({
         type: [String, Number],
         default: 600
     },
+    size: {
+        type: String,
+        default: 'sm',
+        validator: value => ['sm', 'lg', 'xl', '2xl'].includes(value)
+    },
     type: {
         type: String,
         default: 'default'
@@ -93,7 +101,15 @@ defineProps({
     }
 })
 
-defineEmits(['close', 'cancel', 'confirm'])
+const modalWidth = computed(() => {
+    const sizeMap = {
+        sm: 600,
+        lg: 800,
+        xl: 1000,
+        '2xl': 1200
+    }
+    return sizeMap[props.size] || props.maxWidth
+})
 </script>
 
 <style scoped>

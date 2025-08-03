@@ -43,10 +43,9 @@ class ProductController extends Controller
      */
     public function create()
     {
-        return Inertia::modal('Dashboard/Inertia/V1/Products/Create')
-            ->with([
-                'categories' => Category::all(['id', 'name']),
-            ])->baseRoute('products.index');
+        return Inertia::modal('Dashboard/Inertia/V1/Products/Create',[
+        ])->baseRoute('products.create');
+       
     }
 
     /**
