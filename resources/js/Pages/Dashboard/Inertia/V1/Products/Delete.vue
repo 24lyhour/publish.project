@@ -1,93 +1,112 @@
 <template>
     <AuthenticatedLayout title="Delete Product">
-        <div>
-            <inertia-head :title="__('Delete Product')"></inertia-head>
-            <sakal-modal type="error">
-                <template #title>
-                    {{ __("Delete Product") }}
-                </template>
-
-                <div class="delete-content">
-                    <div class="product-info">
-                        <div class="product-avatar">
-                            <v-img 
-                                v-if="product.imageUrl" 
-                                :src="product.imageUrl" 
-                                width="80" 
-                                height="80" 
-                                cover 
-                                class="rounded">
-                            </v-img>
-                            <v-avatar 
-                                v-else 
-                                size="80" 
-                                color="grey-lighten-2">
-                                <v-icon icon="mdi-package" size="40" color="grey-darken-1"></v-icon>
-                            </v-avatar>
-                        </div>
-                        
-                        <div class="product-details">
-                            <h3 class="product-name">{{ product.name }}</h3>
-                            <p class="product-description">{{ truncateText(product.description, 100) }}</p>
-                            <div class="product-meta">
-                                <v-chip size="small" color="primary" variant="flat" class="me-2">
-                                    ${{ product.price }}
-                                </v-chip>
-                                <v-chip size="small" :color="product.status === 'active' ? 'success' : 'error'" variant="flat">
-                                    {{ product.status }}
-                                </v-chip>
-                            </div>
+        <Head :title="__('Delete Product')" />
+        
+        <sakal-form-modal 
+            :show="true" 
+            :title="__('Delete Product')"
+            subtitle="This action cannot be undone" 
+            icon="trash"
+            icon-color="red"
+            type="error"
+            size="lg"
+            :submit-text="__('Delete Product')" 
+            :cancel-text="__('Cancel')" 
+            @cancel="goBack"
+            @close="goBack" 
+            @submit="confirmDelete">
+            
+            <div class="space-y-6">
+                <!-- Product Info -->
+                <div class="flex items-start gap-4">
+                    <div class="flex-shrink-0">
+                        <img 
+                            v-if="product.imageUrl" 
+                            :src="product.imageUrl" 
+                            :alt="product.name"
+                            class="w-20 h-20 rounded-lg object-cover border border-gray-200" />
+                        <div 
+                            v-else 
+                            class="w-20 h-20 rounded-lg bg-gray-100 flex items-center justify-center border border-gray-200">
+                            <Package class="w-8 h-8 text-gray-400" />
                         </div>
                     </div>
-
-                    <v-divider class="my-6"></v-divider>
-
-                    <v-alert type="warning" variant="tonal" class="mb-4">
-                        <v-alert-title>{{ __("Warning") }}</v-alert-title>
-                        {{ __("This action cannot be undone. The product and all its data will be permanently deleted.") }}
-                    </v-alert>
-
-                    <div class="confirmation-text">
-                        <p class="text-body-1 mb-4">
-                            {{ __("Are you sure you want to delete this product?") }}
-                        </p>
-                        <ul class="text-body-2 text-grey-darken-1 mb-0">
-                            <li>{{ __("Product information will be permanently removed") }}</li>
-                            <li>{{ __("Associated images will be deleted") }}</li>
-                            <li>{{ __("This action cannot be reversed") }}</li>
-                        </ul>
+                    
+                    <div class="flex-1 min-w-0">
+                        <h3 class="text-lg font-semibold text-gray-900 mb-2">{{ product.name }}</h3>
+                        <p class="text-sm text-gray-600 mb-3">{{ truncateText(product.description, 100) }}</p>
+                        <div class="flex items-center gap-2">
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                                ${{ product.price }}
+                            </span>
+                            <span :class="[
+                                'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium',
+                                product.status === 'active' 
+                                    ? 'bg-green-100 text-green-800' 
+                                    : 'bg-red-100 text-red-800'
+                            ]">
+                                {{ product.status }}
+                            </span>
+                        </div>
                     </div>
                 </div>
 
-                <template #footer>
-                    <v-btn 
-                        variant="outlined" 
-                        @click="goBack" 
-                        :disabled="form.processing">
-                        {{ __("Cancel") }}
-                    </v-btn>
-                    <v-btn 
-                        color="error" 
-                        @click="confirmDelete" 
-                        prepend-icon="mdi-delete"
-                        :loading="form.processing">
-                        {{ __("Delete Product") }}
-                    </v-btn>
-                </template>
-            </sakal-modal>
-        </div>
+                <!-- Warning Alert -->
+                <div class="rounded-lg border border-yellow-200 bg-yellow-50 p-4">
+                    <div class="flex items-start">
+                        <AlertTriangle class="w-5 h-5 text-yellow-600 mt-0.5 mr-3 flex-shrink-0" />
+                        <div>
+                            <h4 class="text-sm font-medium text-yellow-800 mb-1">{{ __("Warning") }}</h4>
+                            <p class="text-sm text-yellow-700">
+                                {{ __("This action cannot be undone. The product and all its data will be permanently deleted.") }}
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Confirmation Details -->
+                <div class="bg-gray-50 rounded-lg p-4">
+                    <p class="text-sm font-medium text-gray-900 mb-3">
+                        {{ __("Are you sure you want to delete this product?") }}
+                    </p>
+                    <ul class="text-xs text-gray-600 space-y-1 ml-4">
+                        <li class="flex items-center">
+                            <span class="w-1 h-1 bg-gray-400 rounded-full mr-2 flex-shrink-0"></span>
+                            {{ __("Product information will be permanently removed") }}
+                        </li>
+                        <li class="flex items-center">
+                            <span class="w-1 h-1 bg-gray-400 rounded-full mr-2 flex-shrink-0"></span>
+                            {{ __("Associated images will be deleted") }}
+                        </li>
+                        <li class="flex items-center">
+                            <span class="w-1 h-1 bg-gray-400 rounded-full mr-2 flex-shrink-0"></span>
+                            {{ __("This action cannot be reversed") }}
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </sakal-form-modal>
     </AuthenticatedLayout>
 </template>
 
 <script setup>
-import { router, useForm } from '@inertiajs/vue3'
+import { router, useForm, Head } from '@inertiajs/vue3'
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue'
-import SakalModal from '@/Modals/SakalFormModal.vue'
+import SakalFormModal from '@/Modals/SakalFormModal.vue'
+import { Package, AlertTriangle } from 'lucide-vue-next'
 
 const props = defineProps({
     product: {
         type: Object,
         required: true
+    },
+    isModal: {
+        type: Boolean,
+        default: false
+    },
+    baseRoute: {
+        type: String,
+        default: null
     }
 })
 
@@ -98,7 +117,11 @@ const form = useForm({})
 const confirmDelete = () => {
     form.delete(route('products.destroy', props.product.id), {
         onSuccess: () => {
-            router.get(route('products.index'))
+            if (props.baseRoute) {
+                router.get(route(props.baseRoute))
+            } else {
+                router.get(route('products.index'))
+            }
         },
         onError: (errors) => {
             console.error('Error deleting product:', errors)
@@ -107,7 +130,11 @@ const confirmDelete = () => {
 }
 
 const goBack = () => {
-    router.get(route('products.index'))
+    if (props.baseRoute) {
+        router.get(route(props.baseRoute))
+    } else {
+        router.get(route('products.index'))
+    }
 }
 
 const truncateText = (text, length) => {
@@ -131,60 +158,3 @@ const __ = (key) => {
     return translations[key] || key
 }
 </script>
-
-<style scoped>
-.delete-content {
-    padding: 16px 0;
-}
-
-.product-info {
-    display: flex;
-    gap: 16px;
-    align-items: flex-start;
-    margin-bottom: 24px;
-}
-
-.product-avatar {
-    flex-shrink: 0;
-}
-
-.product-details {
-    flex: 1;
-    min-width: 0;
-}
-
-.product-name {
-    font-size: 1.25rem;
-    font-weight: 600;
-    color: #2d3748;
-    margin: 0 0 8px 0;
-    line-height: 1.4;
-}
-
-.product-description {
-    color: #718096;
-    margin: 0 0 12px 0;
-    line-height: 1.4;
-    font-size: 0.875rem;
-}
-
-.product-meta {
-    display: flex;
-    gap: 8px;
-    flex-wrap: wrap;
-}
-
-.confirmation-text {
-    background: #f7fafc;
-    border-radius: 8px;
-    padding: 16px;
-}
-
-.confirmation-text ul {
-    padding-left: 20px;
-}
-
-.confirmation-text li {
-    margin-bottom: 4px;
-}
-</style>

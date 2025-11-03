@@ -74,6 +74,17 @@ Route::middleware(['auth'])->group(function () {
              * Category Management Group
              */
             Route::group(['prefix' => 'categories'], function () {
+                
+                
+                 // Category delete confirmation route
+                Route::get('category/create', [CategoryController::class, 'create'])
+                ->name('categories.create');
+                Route::get('category/edit', [CategoryController::class, 'edit'])
+                ->name('categories.edit');
+                Route::get('/{category}/delete', [CategoryController::class, 'delete'])
+                    ->name('categories.delete');
+
+                    
                 Route::resource('/', CategoryController::class)->parameters(['' => 'category'])->names([
                     'index' => 'categories.index',
                     'create' => 'categories.create',
@@ -84,13 +95,6 @@ Route::middleware(['auth'])->group(function () {
                     'destroy' => 'categories.destroy'
                 ]);
                 
-                // Category delete confirmation route
-                Route::get('category/create', [CategoryController::class, 'create'])
-                ->name('categories.create');
-                Route::get('category/edit', [CategoryController::class, 'edit'])
-                ->name('categories.edit');
-                Route::get('/{category}/delete', [CategoryController::class, 'delete'])
-                    ->name('categories.delete');
             });
             
             /**

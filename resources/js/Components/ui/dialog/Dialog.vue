@@ -1,0 +1,12 @@
+<script setup>
+import { DialogRoot, useForwardPropsEmits } from 'reka-ui'
+
+const props = defineProps()
+const emits = defineEmits()
+
+const forwarded = useForwardPropsEmits(props, emits)
+</script>
+
+<template>
+  <DialogRoot v-bind="forwarded" />
+</template>

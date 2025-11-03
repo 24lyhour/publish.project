@@ -275,13 +275,38 @@
             </div>
 
         </div>
+
+        <!-- Create Product Modal -->
+        <SakalForm 
+            :show="showCreateModal" 
+            title="Create New Product"
+            subtitle="Fill in the product details below"
+            icon="package-plus"
+            icon-color="blue"
+            size="xl"
+            submit-text="Save Product" 
+            cancel-text="Cancel" 
+            submit-color="blue"
+            :processing="createForm.processing"
+            @cancel="closeCreateModal"
+            @close="closeCreateModal" 
+            @submit="handleCreateSubmit">
+            
+            <ProductForm 
+                v-model="createForm" 
+                :categories="props.categories" 
+                :errors="createForm.errors" 
+                :processing="createForm.processing" />
+        </SakalForm>
     </AuthenticatedLayout>
 </template>
 
 <script setup>
 import { ref, computed, watch } from 'vue';
-import { router } from '@inertiajs/vue3';
+import { router, useForm } from '@inertiajs/vue3';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
+import SakalForm from '@/Modals/SakalForm.vue';
+import ProductForm from '@/Components/Dashboard/Inertia/V1/ProductForm.vue';
 
 const props = defineProps({
     products: Object,
@@ -298,6 +323,23 @@ const sortBy = ref(props.filters?.sort || 'name');
 const sortDesc = ref(props.filters?.direction === 'desc');
 const loading = ref(false);
 const viewMode = ref('grid');
+
+// Modal state
+const showCreateModal = ref(false);
+
+// Form for creating products
+const createForm = useForm({
+    name: '',
+    description: '',
+    price: '',
+    category_id: null,
+    quantity: '',
+    status: 'active',
+    image: null,
+    size: '',
+    type: '',
+    ingredients: ''
+});
 
 // Configuration Options
 const priceRanges = [
@@ -424,7 +466,24 @@ const clearFilters = () => {
 
 // Event Handlers - Using Inertia modals
 const createProduct = () => {
-    router.get(route('products.create'));
+    showCreateModal.value = true;
+};
+
+// Modal methods
+const closeCreateModal = () => {
+    showCreateModal.value = false;
+    createForm.reset();
+    createForm.clearErrors();
+};
+
+const handleCreateSubmit = () => {
+    createForm.post(route('products.store'), {
+        onSuccess: () => {
+            closeCreateModal();
+            // Refresh the page to show new product
+            router.reload();
+        }
+    });
 };
 
 const viewProduct = (product) => {

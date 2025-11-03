@@ -1,56 +1,46 @@
 <template>
-    <AuthenticatedLayout title="Create Product">
-        <div>
-            <inertia-head :title="__('Create New Product')"></inertia-head>
-            <vee-form :validation-schema="schema" @submit="submitCallback()" v-slot="{ meta, setErrors, errors }"
-                :initial-values="form">
-                <sakal-modal>
-                    <template #title>
-                        {{ __("Create a New Product") }}
-                    </template>
-
-                    <ProductForm v-model="form" :categories="props.categories" :error-messages="errors" />
-
-                    <template #footer>
-                        <v-btn 
-                            variant="outlined" 
-                            @click="goBack" 
-                            :disabled="form.processing">
-                            {{ __("Cancel") }}
-                        </v-btn>
-                        <v-btn 
-                            type="submit" 
-                            color="primary" 
-                            :disabled="!meta.valid || form.processing"
-                            @click.prevent="submitCallback(setErrors)" 
-                            prepend-icon="mdi-content-save"
-                            :loading="form.processing">
-                            {{ __("Save Product") }}
-                        </v-btn>
-                    </template>
-                </sakal-modal>
-            </vee-form>
-        </div>
-    </AuthenticatedLayout>
+    <SakalForm 
+        :show="true" 
+        :title="__('Create New Product')"
+        subtitle="Fill in the product details below"
+        icon="package-plus"
+        icon-color="blue"
+        size="xl"
+        :submit-text="__('Save Product')" 
+        :cancel-text="__('Cancel')" 
+        submit-color="blue"
+        :processing="form.processing"
+        @cancel="goBack"
+        @close="goBack" 
+        @submit="handleSubmit">
+        
+        <ProductForm 
+            v-model="form" 
+            :categories="props.categories" 
+            :errors="form.errors" 
+            :processing="form.processing" />
+    </SakalForm>
 </template>
 
 <script setup>
-import { reactive } from 'vue'
 import { router, useForm } from '@inertiajs/vue3'
-import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue'
-import SakalModal from '@/Modals/SakalFormModal.vue'
+import SakalForm from '@/Modals/SakalForm.vue'
 import ProductForm from '@/Components/Dashboard/Inertia/V1/ProductForm.vue'
-import { createProductSchema } from '@/Shared/Validation/ProductValidation.js'
 
 const props = defineProps({
     categories: {
         type: Array,
         default: () => []
+    },
+    isModal: {
+        type: Boolean,
+        default: false
+    },
+    baseRoute: {
+        type: String,
+        default: null
     }
 })
-
-// Use the standardized validation schema
-const schema = createProductSchema
 
 // Form data
 const form = useForm({
@@ -67,36 +57,33 @@ const form = useForm({
 })
 
 // Methods
-const submitCallback = (setErrors) => {
+const handleSubmit = () => {
     form.post(route('products.store'), {
         onSuccess: () => {
-            router.get(route('products.index'))
-        },
-        onError: (errors) => {
-            if (setErrors) {
-                setErrors(errors)
+            if (props.baseRoute) {
+                router.get(route(props.baseRoute))
+            } else {
+                router.get(route('products.index'))
             }
         }
     })
 }
 
 const goBack = () => {
-    router.get(route('products.index'))
+    if (props.baseRoute) {
+        router.get(route(props.baseRoute))
+    } else {
+        router.get(route('products.index'))
+    }
 }
 
-// Translation helper (you can implement this based on your i18n setup)
+// Translation helper
 const __ = (key) => {
-    // Simple fallback - replace with your actual translation logic
     const translations = {
         'Create New Product': 'Create New Product',
-        'Create a New Product': 'Create a New Product',
-        'Cancel': 'Cancel',
-        'Save Product': 'Save Product'
+        'Save Product': 'Save Product',
+        'Cancel': 'Cancel'
     }
     return translations[key] || key
 }
 </script>
-
-<style scoped>
-/* Minimal styling - the modal handles most of the layout */
-</style>

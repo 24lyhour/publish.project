@@ -7,6 +7,7 @@ import { resolvePageComponent } from 'laravel-vite-plugin/inertia-helpers';
 import { ZiggyVue } from 'ziggy-js';
 import vuetify from './plugins/vuetify';
 import { registerGlobalComponents } from './Components/ui';
+import { Form as VeeForm } from 'vee-validate';
 
 const appName =
   window.document.getElementsByTagName('title')[0]?.innerText || 'Laravel';
@@ -26,6 +27,9 @@ createInertiaApp({
     
     // Register global UI components
     registerGlobalComponents(app);
+    
+    // Register vee-validate form component
+    app.component('vee-form', VeeForm);
     
     return app.mount(el);
   },

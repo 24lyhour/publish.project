@@ -1,234 +1,270 @@
 <template>
-    <div class="product-form">
+    <div class="space-y-6">
         <!-- Basic Information Section -->
-        <div class="form-section">
-            <h4 class="section-title">
-                <v-icon icon="mdi-information" class="me-2" color="primary"></v-icon>
-                {{ __("Basic Information") }}
-            </h4>
+        <div class="space-y-4">
+            <div class="flex items-center gap-2 mb-4">
+                <Info class="w-5 h-5 text-blue-600" />
+                <h4 class="text-lg font-semibold text-gray-900">{{ __("Basic Information") }}</h4>
+            </div>
             
-            <v-text-field
-                v-model="formData.name"
-                :label="__('Product Name') + ' *'"
-                :placeholder="__('Enter a descriptive product name')"
-                variant="outlined"
-                density="comfortable"
-                :error-messages="errorMessages.name"
-                counter="255"
-                required
-                class="mb-4"
-                @input="emitUpdate">
-                <template #prepend-inner>
-                    <v-icon icon="mdi-package" color="grey-darken-1"></v-icon>
-                </template>
-            </v-text-field>
+            <div class="space-y-4">
+                <FormField name="name">
+                    <FormItem>
+                        <FormLabel>{{ __('Product Name') }} <span class="text-red-500">*</span></FormLabel>
+                        <FormControl>
+                            <Input
+                                v-model="formData.name"
+                                :placeholder="__('Enter a descriptive product name')"
+                                :class="{ 'border-red-500': errors?.name }"
+                                @input="emitUpdate" />
+                        </FormControl>
+                        <FormMessage v-if="errors?.name" class="text-red-500 text-sm">
+                            {{ errors.name }}
+                        </FormMessage>
+                    </FormItem>
+                </FormField>
 
-            <v-textarea
-                v-model="formData.description"
-                :label="__('Product Description') + ' *'"
-                :placeholder="__('Describe your product in detail...')"
-                variant="outlined"
-                density="comfortable"
-                rows="4"
-                :error-messages="errorMessages.description"
-                counter="1000"
-                required
-                class="mb-4"
-                @input="emitUpdate">
-                <template #prepend-inner>
-                    <v-icon icon="mdi-text" color="grey-darken-1"></v-icon>
-                </template>
-            </v-textarea>
+                <FormField name="description">
+                    <FormItem>
+                        <FormLabel>{{ __('Product Description') }} <span class="text-red-500">*</span></FormLabel>
+                        <FormControl>
+                            <Textarea
+                                v-model="formData.description"
+                                :placeholder="__('Describe your product in detail...')"
+                                rows="4"
+                                :class="{ 'border-red-500': errors?.description }"
+                                @input="emitUpdate" />
+                        </FormControl>
+                        <FormMessage v-if="errors?.description" class="text-red-500 text-sm">
+                            {{ errors.description }}
+                        </FormMessage>
+                    </FormItem>
+                </FormField>
+            </div>
         </div>
 
-        <v-divider class="my-6"></v-divider>
+        <Separator />
 
         <!-- Pricing & Details Section -->
-        <div class="form-section">
-            <h4 class="section-title">
-                <v-icon icon="mdi-currency-usd" class="me-2" color="success"></v-icon>
-                {{ __("Pricing & Details") }}
-            </h4>
+        <div class="space-y-4">
+            <div class="flex items-center gap-2 mb-4">
+                <DollarSign class="w-5 h-5 text-green-600" />
+                <h4 class="text-lg font-semibold text-gray-900">{{ __("Pricing & Details") }}</h4>
+            </div>
             
-            <v-row>
-                <v-col cols="12" md="6">
-                    <v-text-field
-                        v-model="formData.price"
-                        :label="__('Price (USD)') + ' *'"
-                        placeholder="0.00"
-                        type="number"
-                        step="0.01"
-                        variant="outlined"
-                        density="comfortable"
-                        :error-messages="errorMessages.price"
-                        required
-                        class="mb-4"
-                        @input="emitUpdate">
-                        <template #prepend-inner>
-                            <v-icon icon="mdi-currency-usd" color="grey-darken-1"></v-icon>
-                        </template>
-                    </v-text-field>
-                </v-col>
-                
-                <v-col cols="12" md="6">
-                    <v-text-field
-                        v-model="formData.quantity"
-                        :label="__('Stock Quantity')"
-                        placeholder="0"
-                        type="number"
-                        variant="outlined"
-                        density="comfortable"
-                        :error-messages="errorMessages.quantity"
-                        class="mb-4"
-                        @input="emitUpdate">
-                        <template #prepend-inner>
-                            <v-icon icon="mdi-package-variant" color="grey-darken-1"></v-icon>
-                        </template>
-                    </v-text-field>
-                </v-col>
-                
-                <v-col cols="12" md="6">
-                    <v-select
-                        v-model="formData.category_id"
-                        :items="categories"
-                        item-title="name"
-                        item-value="id"
-                        :label="__('Category')"
-                        variant="outlined"
-                        density="comfortable"
-                        :error-messages="errorMessages.category_id"
-                        class="mb-4"
-                        clearable
-                        @update:model-value="emitUpdate">
-                        <template #prepend-inner>
-                            <v-icon icon="mdi-tag" color="grey-darken-1"></v-icon>
-                        </template>
-                    </v-select>
-                </v-col>
-                
-                <v-col cols="12" md="6">
-                    <v-select
-                        v-model="formData.status"
-                        :items="statusOptions"
-                        :label="__('Status')"
-                        variant="outlined"
-                        density="comfortable"
-                        :error-messages="errorMessages.status"
-                        class="mb-4"
-                        @update:model-value="emitUpdate">
-                        <template #prepend-inner>
-                            <v-icon icon="mdi-check-circle" color="grey-darken-1"></v-icon>
-                        </template>
-                    </v-select>
-                </v-col>
-            </v-row>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <FormField name="price">
+                    <FormItem>
+                        <FormLabel>{{ __('Price (USD)') }} <span class="text-red-500">*</span></FormLabel>
+                        <FormControl>
+                            <Input
+                                v-model="formData.price"
+                                type="number"
+                                step="0.01"
+                                placeholder="0.00"
+                                :class="{ 'border-red-500': errors?.price }"
+                                @input="emitUpdate" />
+                        </FormControl>
+                        <FormMessage v-if="errors?.price" class="text-red-500 text-sm">
+                            {{ errors.price }}
+                        </FormMessage>
+                    </FormItem>
+                </FormField>
+
+                <FormField name="quantity">
+                    <FormItem>
+                        <FormLabel>{{ __('Stock Quantity') }}</FormLabel>
+                        <FormControl>
+                            <Input
+                                v-model="formData.quantity"
+                                type="number"
+                                placeholder="0"
+                                :class="{ 'border-red-500': errors?.quantity }"
+                                @input="emitUpdate" />
+                        </FormControl>
+                        <FormMessage v-if="errors?.quantity" class="text-red-500 text-sm">
+                            {{ errors.quantity }}
+                        </FormMessage>
+                    </FormItem>
+                </FormField>
+
+                <FormField name="category_id">
+                    <FormItem>
+                        <FormLabel>{{ __('Category') }}</FormLabel>
+                        <Select v-model="formData.category_id" @update:model-value="emitUpdate">
+                            <FormControl>
+                                <SelectTrigger :class="{ 'border-red-500': errors?.category_id }">
+                                    <SelectValue placeholder="Select a category" />
+                                </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                                <SelectItem 
+                                    v-for="category in categories" 
+                                    :key="category.id" 
+                                    :value="category.id">
+                                    {{ category.name }}
+                                </SelectItem>
+                            </SelectContent>
+                        </Select>
+                        <FormMessage v-if="errors?.category_id" class="text-red-500 text-sm">
+                            {{ errors.category_id }}
+                        </FormMessage>
+                    </FormItem>
+                </FormField>
+
+                <FormField name="status">
+                    <FormItem>
+                        <FormLabel>{{ __('Status') }}</FormLabel>
+                        <Select v-model="formData.status" @update:model-value="emitUpdate">
+                            <FormControl>
+                                <SelectTrigger :class="{ 'border-red-500': errors?.status }">
+                                    <SelectValue placeholder="Select status" />
+                                </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                                <SelectItem value="active">{{ __('Active') }}</SelectItem>
+                                <SelectItem value="inactive">{{ __('Inactive') }}</SelectItem>
+                                <SelectItem value="draft">{{ __('Draft') }}</SelectItem>
+                            </SelectContent>
+                        </Select>
+                        <FormMessage v-if="errors?.status" class="text-red-500 text-sm">
+                            {{ errors.status }}
+                        </FormMessage>
+                    </FormItem>
+                </FormField>
+            </div>
         </div>
 
-        <v-divider class="my-6"></v-divider>
+        <Separator />
 
         <!-- Additional Details Section -->
-        <div class="form-section">
-            <h4 class="section-title">
-                <v-icon icon="mdi-cog" class="me-2" color="warning"></v-icon>
-                {{ __("Additional Details") }}
-            </h4>
+        <div class="space-y-4">
+            <div class="flex items-center gap-2 mb-4">
+                <Settings class="w-5 h-5 text-yellow-600" />
+                <h4 class="text-lg font-semibold text-gray-900">{{ __("Additional Details") }}</h4>
+            </div>
             
-            <v-row>
-                <v-col cols="12" md="6">
-                    <v-text-field
-                        v-model="formData.size"
-                        :label="__('Size')"
-                        :placeholder="__('e.g., Large, 500ml, XL')"
-                        variant="outlined"
-                        density="comfortable"
-                        :error-messages="errorMessages.size"
-                        class="mb-4"
-                        @input="emitUpdate">
-                        <template #prepend-inner>
-                            <v-icon icon="mdi-resize" color="grey-darken-1"></v-icon>
-                        </template>
-                    </v-text-field>
-                </v-col>
-                
-                <v-col cols="12" md="6">
-                    <v-text-field
-                        v-model="formData.type"
-                        :label="__('Type')"
-                        :placeholder="__('e.g., Premium, Standard')"
-                        variant="outlined"
-                        density="comfortable"
-                        :error-messages="errorMessages.type"
-                        class="mb-4"
-                        @input="emitUpdate">
-                        <template #prepend-inner>
-                            <v-icon icon="mdi-shape" color="grey-darken-1"></v-icon>
-                        </template>
-                    </v-text-field>
-                </v-col>
-                
-                <v-col cols="12" v-if="showImageUpload">
-                    <v-file-input
-                        v-model="formData.image"
-                        :label="__('Product Image')"
-                        variant="outlined"
-                        density="comfortable"
-                        :error-messages="errorMessages.image"
-                        accept="image/*"
-                        prepend-icon=""
-                        class="mb-4"
-                        @update:model-value="handleImageChange">
-                        <template #prepend-inner>
-                            <v-icon icon="mdi-camera" color="grey-darken-1"></v-icon>
-                        </template>
-                    </v-file-input>
-                    
-                    <!-- Image Preview -->
-                    <div v-if="imagePreview" class="image-preview">
-                        <v-img :src="imagePreview" max-height="200" contain class="rounded"></v-img>
-                        <v-btn 
-                            icon="mdi-close" 
-                            size="small" 
-                            variant="elevated" 
-                            color="error" 
-                            class="remove-btn"
-                            @click="clearImage">
-                        </v-btn>
-                    </div>
-                </v-col>
-                
-                <v-col cols="12">
-                    <v-textarea
-                        v-model="formData.ingredients"
-                        :label="__('Ingredients')"
-                        :placeholder="__('List ingredients (optional)')"
-                        variant="outlined"
-                        density="comfortable"
-                        rows="2"
-                        :error-messages="errorMessages.ingredients"
-                        class="mb-4"
-                        @input="emitUpdate">
-                        <template #prepend-inner>
-                            <v-icon icon="mdi-food" color="grey-darken-1"></v-icon>
-                        </template>
-                    </v-textarea>
-                </v-col>
-            </v-row>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <FormField name="size">
+                    <FormItem>
+                        <FormLabel>{{ __('Size') }}</FormLabel>
+                        <FormControl>
+                            <Input
+                                v-model="formData.size"
+                                :placeholder="__('e.g., Large, 500ml, XL')"
+                                :class="{ 'border-red-500': errors?.size }"
+                                @input="emitUpdate" />
+                        </FormControl>
+                        <FormMessage v-if="errors?.size" class="text-red-500 text-sm">
+                            {{ errors.size }}
+                        </FormMessage>
+                    </FormItem>
+                </FormField>
+
+                <FormField name="type">
+                    <FormItem>
+                        <FormLabel>{{ __('Type') }}</FormLabel>
+                        <FormControl>
+                            <Input
+                                v-model="formData.type"
+                                :placeholder="__('e.g., Premium, Standard')"
+                                :class="{ 'border-red-500': errors?.type }"
+                                @input="emitUpdate" />
+                        </FormControl>
+                        <FormMessage v-if="errors?.type" class="text-red-500 text-sm">
+                            {{ errors.type }}
+                        </FormMessage>
+                    </FormItem>
+                </FormField>
+            </div>
+
+            <!-- Image Upload -->
+            <FormField v-if="showImageUpload" name="image">
+                <FormItem>
+                    <FormLabel>{{ __('Product Image') }}</FormLabel>
+                    <FormControl>
+                        <div class="space-y-4">
+                            <Input
+                                type="file"
+                                accept="image/*"
+                                :class="{ 'border-red-500': errors?.image }"
+                                @change="handleImageChange" />
+                            
+                            <!-- Image Preview -->
+                            <div v-if="imagePreview" class="relative inline-block">
+                                <img 
+                                    :src="imagePreview" 
+                                    alt="Preview"
+                                    class="w-48 h-48 object-cover rounded-lg border border-gray-200" />
+                                <Button
+                                    type="button"
+                                    variant="destructive"
+                                    size="sm"
+                                    class="absolute top-2 right-2"
+                                    @click="clearImage">
+                                    <X class="w-4 h-4" />
+                                </Button>
+                            </div>
+                        </div>
+                    </FormControl>
+                    <FormMessage v-if="errors?.image" class="text-red-500 text-sm">
+                        {{ errors.image }}
+                    </FormMessage>
+                </FormItem>
+            </FormField>
+
+            <!-- Ingredients -->
+            <FormField name="ingredients">
+                <FormItem>
+                    <FormLabel>{{ __('Ingredients') }}</FormLabel>
+                    <FormControl>
+                        <Textarea
+                            v-model="formData.ingredients"
+                            :placeholder="__('List ingredients (optional)')"
+                            rows="2"
+                            :class="{ 'border-red-500': errors?.ingredients }"
+                            @input="emitUpdate" />
+                    </FormControl>
+                    <FormMessage v-if="errors?.ingredients" class="text-red-500 text-sm">
+                        {{ errors.ingredients }}
+                    </FormMessage>
+                </FormItem>
+            </FormField>
         </div>
 
         <!-- Custom Fields Slot -->
-        <slot name="additional-fields" :form="formData" :errors="errorMessages"></slot>
+        <slot name="additional-fields" :form="formData" :errors="errors"></slot>
     </div>
 </template>
 
 <script setup>
 import { ref, computed, watch, onMounted } from 'vue'
+import { Button } from '@/Components/ui/button'
+import { Input } from '@/Components/ui/input'
+import { Textarea } from '@/Components/ui/textarea'
+import { Separator } from '@/Components/ui/separator'
+import {
+    FormControl,
+    FormField,
+    FormItem,
+    FormLabel,
+    FormMessage,
+} from '@/Components/ui/form'
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from '@/Components/ui/select'
+import { Info, DollarSign, Settings, X } from 'lucide-vue-next'
 
 const props = defineProps({
     modelValue: {
         type: Object,
         required: true
     },
-    errorMessages: {
+    errors: {
         type: Object,
         default: () => ({})
     },
@@ -244,9 +280,13 @@ const props = defineProps({
         type: Boolean,
         default: true
     },
+    processing: {
+        type: Boolean,
+        default: false
+    },
     mode: {
         type: String,
-        default: 'create', // 'create' or 'edit'
+        default: 'create',
         validator: value => ['create', 'edit'].includes(value)
     }
 })
@@ -257,27 +297,26 @@ const emit = defineEmits(['update:modelValue', 'imageChanged'])
 const formData = ref({ ...props.modelValue })
 const imagePreview = ref(null)
 
-// Static data
-const statusOptions = computed(() => [
-    { title: __('Active'), value: 'active' },
-    { title: __('Inactive'), value: 'inactive' },
-    { title: __('Draft'), value: 'draft' }
-])
-
 // Methods
 const emitUpdate = () => {
     emit('update:modelValue', formData.value)
 }
 
-const handleImageChange = () => {
-    if (formData.value.image) {
-        const file = formData.value.image
-        if (file instanceof File) {
-            // Create preview URL for new file
-            imagePreview.value = URL.createObjectURL(file)
-            emit('imageChanged', { file, previewUrl: imagePreview.value })
+const handleImageChange = (event) => {
+    const file = event.target.files[0]
+    if (file) {
+        formData.value.image = file
+        // Create preview URL for new file
+        if (imagePreview.value && formData.value.image instanceof File) {
+            URL.revokeObjectURL(imagePreview.value)
         }
+        imagePreview.value = URL.createObjectURL(file)
+        emit('imageChanged', { file, previewUrl: imagePreview.value })
     } else {
+        formData.value.image = null
+        if (imagePreview.value) {
+            URL.revokeObjectURL(imagePreview.value)
+        }
         imagePreview.value = null
         emit('imageChanged', { file: null, previewUrl: null })
     }
@@ -296,7 +335,6 @@ const clearImage = () => {
 
 // Translation helper
 const __ = (key) => {
-    // Simple fallback - replace with your actual translation logic
     const translations = {
         'Basic Information': 'Basic Information',
         'Product Name': 'Product Name',
@@ -340,50 +378,3 @@ watch(formData, () => {
     emitUpdate()
 }, { deep: true })
 </script>
-
-<style scoped>
-.product-form {
-    width: 100%;
-}
-
-.form-section {
-    margin-bottom: 24px;
-}
-
-.section-title {
-    font-size: 1.125rem;
-    font-weight: 600;
-    color: #2d3748;
-    margin: 0 0 16px 0;
-    display: flex;
-    align-items: center;
-}
-
-.image-preview {
-    position: relative;
-    margin-top: 16px;
-    max-width: 200px;
-}
-
-.remove-btn {
-    position: absolute;
-    top: 8px;
-    right: 8px;
-}
-
-/* Form field spacing */
-.mb-4 {
-    margin-bottom: 16px !important;
-}
-
-/* Responsive design */
-@media (max-width: 768px) {
-    .section-title {
-        font-size: 1rem;
-    }
-    
-    .image-preview {
-        max-width: 150px;
-    }
-}
-</style>
